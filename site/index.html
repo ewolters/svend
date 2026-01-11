@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Svend - A reasoning system that shows its work</title>
+    <meta name="description" content="A small model trained from scratch to reason through math, logic, chemistry, and physics.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://svend.ai/">
+    <meta property="og:title" content="Svend - A reasoning system that shows its work">
+    <meta property="og:description" content="Not a chatbot. Not a wrapper. A small model trained from scratch to reason through math, logic, chemistry, and physics — with calculation tools it calls when needed.">
+    <meta property="og:image" content="https://svend.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://svend.ai/">
+    <meta name="twitter:title" content="Svend - A reasoning system that shows its work">
+    <meta name="twitter:description" content="Not a chatbot. Not a wrapper. A small model trained from scratch to reason through math, logic, chemistry, and physics.">
+    <meta name="twitter:image" content="https://svend.ai/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌲</text></svg>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --forest-dark: #0a0f0a;
+            --forest-mid: #121a12;
+            --forest-light: #1a261a;
+            --water-dark: #0a1015;
+            --aurora-green: #4a9f6e;
+            --aurora-blue: #3a7f8f;
+            --aurora-purple: #5a4f7f;
+            --firefly-warm: #e8c547;
+            --firefly-orange: #e89547;
+            --firefly-cool: #a7d4a7;
+            --text-primary: #e8efe8;
+            --text-secondary: #9aaa9a;
+            --text-dim: #5a6a5a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--forest-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Layered forest background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Aurora layer */
+        .aurora {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            opacity: 0.15;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                var(--aurora-green) 20%,
+                var(--aurora-blue) 40%,
+                var(--aurora-purple) 60%,
+                transparent 100%
+            );
+            filter: blur(60px);
+            animation: aurora-drift 20s ease-in-out infinite;
+        }
+
+        @keyframes aurora-drift {
+            0%, 100% {
+                transform: translateX(-5%) scaleY(1);
+                opacity: 0.12;
+            }
+            33% {
+                transform: translateX(5%) scaleY(1.1);
+                opacity: 0.18;
+            }
+            66% {
+                transform: translateX(-3%) scaleY(0.95);
+                opacity: 0.1;
+            }
+        }
+
+        /* Hide unused layers */
+        .forest-layer, .trees, .tree, .water, .water-shimmer, .moonlight, .moon-shimmer {
+            display: none;
+        }
+
+        /* Wind/mist layers */
+        .wind {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .wind-layer {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.008) 10%,
+                rgba(255, 255, 255, 0.015) 20%,
+                transparent 30%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.01) 60%,
+                rgba(255, 255, 255, 0.02) 70%,
+                transparent 80%,
+                transparent 100%
+            );
+            animation: wind-drift linear infinite;
+        }
+
+        .wind-layer:nth-child(1) {
+            animation-duration: 25s;
+            opacity: 0.6;
+        }
+
+        .wind-layer:nth-child(2) {
+            animation-duration: 35s;
+            animation-delay: -10s;
+            opacity: 0.4;
+            top: 20%;
+        }
+
+        .wind-layer:nth-child(3) {
+            animation-duration: 45s;
+            animation-delay: -20s;
+            opacity: 0.3;
+            top: 50%;
+        }
+
+        @keyframes wind-drift {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        /* Fireflies container */
+        .fireflies {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .firefly {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: firefly-float 10s ease-in-out infinite;
+        }
+
+        .firefly::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: firefly-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes firefly-float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(30px, -20px) scale(1.1);
+            }
+            50% {
+                transform: translate(-20px, -40px) scale(0.9);
+            }
+            75% {
+                transform: translate(40px, -10px) scale(1.05);
+            }
+        }
+
+        @keyframes firefly-glow {
+            0%, 100% {
+                opacity: 0;
+                box-shadow: none;
+            }
+            15%, 85% {
+                opacity: 0;
+            }
+            30%, 70% {
+                opacity: 1;
+                box-shadow:
+                    0 0 6px 3px currentColor,
+                    0 0 12px 6px currentColor,
+                    0 0 20px 10px rgba(232, 197, 71, 0.3);
+            }
+            50% {
+                opacity: 1;
+                box-shadow:
+                    0 0 8px 4px currentColor,
+                    0 0 16px 8px currentColor,
+                    0 0 30px 15px rgba(232, 197, 71, 0.4);
+            }
+        }
+
+        /* Mist layer */
+        .mist {
+            position: absolute;
+            bottom: 10%;
+            left: 0;
+            width: 200%;
+            height: 20%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.02) 25%,
+                rgba(255, 255, 255, 0.03) 50%,
+                rgba(255, 255, 255, 0.02) 75%,
+                transparent 100%
+            );
+            animation: mist-drift 30s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes mist-drift {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        /* Main content */
+        .content {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .card {
+            background: rgba(10, 15, 10, 0.85);
+            border: 1px solid rgba(74, 159, 110, 0.15);
+            border-radius: 4px;
+            padding: 3rem 4rem;
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            box-shadow:
+                0 4px 30px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 0.4em;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .description {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                var(--aurora-green) 50%,
+                transparent 100%
+            );
+            opacity: 0.3;
+            margin: 2rem 0;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-section h3 {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-section p {
+            font-size: 0.9rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .detail-section .highlight {
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+
+        /* Email form */
+        .notify-form {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .notify-form input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(74, 159, 110, 0.2);
+            border-radius: 3px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .notify-form input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .notify-form input:focus {
+            border-color: rgba(74, 159, 110, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .notify-form button {
+            padding: 0.875rem 1.5rem;
+            background: rgba(74, 159, 110, 0.15);
+            border: 1px solid rgba(74, 159, 110, 0.3);
+            border-radius: 3px;
+            color: var(--aurora-green);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .notify-form button:hover {
+            background: rgba(74, 159, 110, 0.25);
+            border-color: rgba(74, 159, 110, 0.5);
+        }
+
+        /* Footer */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-left {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+
+        .footer-right a {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-right a:hover {
+            color: var(--aurora-green);
+        }
+
+        /* Status indicator */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--aurora-green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .card {
+                padding: 2rem 1.5rem;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .notify-form {
+                flex-direction: column;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="aurora"></div>
+        <div class="wind">
+            <div class="wind-layer"></div>
+            <div class="wind-layer"></div>
+            <div class="wind-layer"></div>
+        </div>
+        <div class="fireflies" id="fireflies"></div>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <div class="status">
+                <span class="status-dot"></span>
+                <span>Training in progress</span>
+            </div>
+
+            <h1 class="logo">SVEND</h1>
+
+            <p class="tagline">A reasoning system that shows its work.</p>
+            <p class="description">
+                Not a chatbot. Not a wrapper.<br>
+                A small model trained from scratch to reason through
+                math, logic, chemistry, and physics — with calculation
+                tools it calls when needed.
+            </p>
+
+            <div class="divider"></div>
+
+            <div class="details">
+                <div class="detail-section">
+                    <h3>Approach</h3>
+                    <p>
+                        Infrastructure before claims.<br>
+                        Evaluation harnesses, safety rails,<br>
+                        and reproducible training runs.
+                    </p>
+                </div>
+                <div class="detail-section">
+                    <h3>When Ready</h3>
+                    <p>
+                        <span class="highlight">Starting at $5/month</span><br>
+                        Estimated launch May 2026.<br>
+                        Training logs and honest benchmarks.
+                    </p>
+                </div>
+            </div>
+
+            <form class="notify-form" id="notify-form">
+                <input type="email" placeholder="Email for launch signal" required>
+                <button type="submit">Notify Me</button>
+            </form>
+
+            <div class="footer">
+                <div class="footer-left">Built deliberately.</div>
+                <div class="footer-right">
+                    <a href="mailto:eric.wolters@svend.ai">eric.wolters@svend.ai</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firefly generation
+        function createFireflies() {
+            const container = document.getElementById('fireflies');
+            const count = 35;
+
+            for (let i = 0; i < count; i++) {
+                const firefly = document.createElement('div');
+                firefly.className = 'firefly';
+
+                // Random position (concentrated in middle-lower area like a forest clearing)
+                const x = Math.random() * 100;
+                const y = 20 + Math.random() * 60; // Keep them in the middle band
+
+                // Random colors - warm yellows, oranges, and occasional cool green
+                const colors = [
+                    '#e8c547', '#e8c547', '#e8c547', // warm yellow (most common)
+                    '#e8a847', '#e89547',             // orange tints
+                    '#d4c96a',                        // pale yellow
+                    '#a7d4a7',                        // cool green (rare)
+                ];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                // Random size
+                const size = 2 + Math.random() * 3;
+
+                // Random animation timing
+                const floatDuration = 8 + Math.random() * 8;
+                const glowDuration = 2 + Math.random() * 3;
+                const floatDelay = Math.random() * -15;
+                const glowDelay = Math.random() * -5;
+
+                firefly.style.cssText = `
+                    left: ${x}%;
+                    top: ${y}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    color: ${color};
+                    animation: firefly-float ${floatDuration}s ease-in-out infinite;
+                    animation-delay: ${floatDelay}s;
+                `;
+
+                firefly.innerHTML = `<style>
+                    .firefly:nth-child(${i + 1})::before {
+                        background: ${color};
+                        animation: firefly-glow ${glowDuration}s ease-in-out infinite;
+                        animation-delay: ${glowDelay}s;
+                    }
+                </style>`;
+
+                container.appendChild(firefly);
+            }
+        }
+
+        // Occasional shooting star / meteor
+        function createShootingStar() {
+            const star = document.createElement('div');
+            const startX = 20 + Math.random() * 60;
+            const startY = 5 + Math.random() * 20;
+
+            star.style.cssText = `
+                position: fixed;
+                left: ${startX}%;
+                top: ${startY}%;
+                width: 2px;
+                height: 2px;
+                background: white;
+                border-radius: 50%;
+                box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8);
+                opacity: 0;
+                z-index: 5;
+                pointer-events: none;
+            `;
+
+            document.body.appendChild(star);
+
+            // Animate
+            star.animate([
+                {
+                    opacity: 0,
+                    transform: 'translate(0, 0) scaleX(1)',
+                    boxShadow: '0 0 6px 2px rgba(255, 255, 255, 0.8)'
+                },
+                {
+                    opacity: 1,
+                    transform: 'translate(20px, 15px) scaleX(3)',
+                    boxShadow: '0 0 10px 3px rgba(255, 255, 255, 0.9), -20px 0 20px 2px rgba(255, 255, 255, 0.3)'
+                },
+                {
+                    opacity: 0,
+                    transform: 'translate(80px, 60px) scaleX(1)',
+                    boxShadow: '0 0 4px 1px rgba(255, 255, 255, 0.4)'
+                }
+            ], {
+                duration: 800,
+                easing: 'ease-out'
+            }).onfinish = () => star.remove();
+        }
+
+        // Random shooting stars
+        function scheduleShootingStar() {
+            const delay = 8000 + Math.random() * 20000; // Every 8-28 seconds
+            setTimeout(() => {
+                createShootingStar();
+                scheduleShootingStar();
+            }, delay);
+        }
+
+        // Form handling - submits to Google Forms
+        document.getElementById('notify-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const input = this.querySelector('input');
+            const email = input.value;
+            const button = this.querySelector('button');
+
+            button.textContent = 'Sending...';
+            button.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('entry.1814885412', email);
+
+                await fetch(
+                    'https://docs.google.com/forms/d/e/1FAIpQLSdbBZVN-b9jEmj4qiZRVG8pBXS4XJA6VoMFuckR_ZNxEGwiGA/formResponse',
+                    {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    }
+                );
+
+                // Success feedback (no-cors means we can't read response, but submission works)
+                button.textContent = 'Added';
+                button.style.background = 'rgba(74, 159, 110, 0.3)';
+                input.value = '';
+
+                setTimeout(() => {
+                    button.textContent = 'Notify Me';
+                    button.style.background = '';
+                    button.disabled = false;
+                }, 2000);
+
+            } catch (error) {
+                button.textContent = 'Error';
+                button.style.background = 'rgba(159, 74, 74, 0.3)';
+
+                setTimeout(() => {
+                    button.textContent = 'Notify Me';
+                    button.style.background = '';
+                    button.disabled = false;
+                }, 2000);
+            }
+        });
+
+        // Initialize
+        createFireflies();
+        scheduleShootingStar();
+    </script>
+</body>
+</html>

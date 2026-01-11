@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del \"C:\\\\Users\\\\ewolt\\\\juniperware\\\\reasoning-lab\\\\scripts\\\\train_synara.py\")",
+      "Bash(py:*)",
+      "Bash(findstr:*)",
+      "Bash(python scripts/generate_tool_data.py:*)",
+      "Bash(.venvScriptsactivate)",
+      "Bash(pip install:*)",
+      "Bash(.venvScriptspip install --upgrade pip)",
+      "Bash(cmd /c \".venv\\\\Scripts\\\\pip install --upgrade pip\")",
+      "Bash(cmd /c \".venv\\\\Scripts\\\\pip install -r requirements.txt\")",
+      "Bash(cmd /c \".venv\\\\Scripts\\\\python -m pip install torch sympy z3-solver fastapi uvicorn pydantic tqdm numpy\")",
+      "Bash(.venv/Scripts/pip.exe install:*)",
+      "Bash(.venvScriptspip install -r requirements.txt)",
+      "Bash(powershell:*)",
+      "Bash(cmd /c \"dir /b src\\\\tools\"\")",
+      "Bash(cmd /c \"python --version\")",
+      "Bash(cmd /c \"pip list 2>&1 | findstr /i \"\"torch sympy z3 fastapi uvicorn pydantic tqdm numpy\"\"\")"
+    ]
+  }
+}

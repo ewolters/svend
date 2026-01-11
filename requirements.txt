@@ -1,0 +1,54 @@
+# =============================================================================
+# Svend - Tool-Augmented Reasoning System (svend.ai)
+# =============================================================================
+
+# Core ML
+torch>=2.0.0
+transformers>=4.35.0
+datasets>=2.14.0
+accelerate>=0.24.0
+
+# Training
+wandb>=0.15.0
+tensorboard>=2.14.0
+
+# Server
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+websockets>=12.0
+
+# Math/Logic Tools
+sympy>=1.12
+z3-solver>=4.12.0
+
+# Evaluation
+evaluate>=0.4.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+
+# Data processing
+sentencepiece>=0.1.99
+tiktoken>=0.5.0
+
+# Utilities
+tqdm>=4.66.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# =============================================================================
+# Optional - High Performance Serving
+# =============================================================================
+# vllm>=0.2.0  # For production serving (requires CUDA)
+
+# =============================================================================
+# Optional - Distributed Training
+# =============================================================================
+# deepspeed>=0.12.0
+# fairscale>=0.4.0
+
+# =============================================================================
+# Optional - Synthetic Data Generation
+# =============================================================================
+# anthropic>=0.7.0
+# openai>=1.0.0
