@@ -34,9 +34,9 @@ ENV/
 # Jupyter
 .ipynb_checkpoints/
 
-# Data and checkpoints
-data/
-checkpoints/
+# Data and checkpoints (root level only, not src/data/)
+/data/
+/checkpoints/
 *.pt
 *.pth
 *.bin
