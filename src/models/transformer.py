@@ -76,6 +76,7 @@ class ReasoningTransformer(nn.Module):
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
         past_key_values: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None,
+        labels: Optional[torch.Tensor] = None,
         use_cache: bool = False,
         return_hidden_states: bool = False,
         return_logits: bool = True,
@@ -88,12 +89,13 @@ class ReasoningTransformer(nn.Module):
             attention_mask: Mask for padding tokens [batch_size, seq_length]
             position_ids: Position indices [batch_size, seq_length]
             past_key_values: Cached KV for generation
+            labels: Target token IDs for loss computation (optional)
             use_cache: Whether to return new KV cache
             return_hidden_states: Whether to return all hidden states
             return_logits: Whether to compute logits (False for distillation hidden states)
 
         Returns:
-            Dictionary with logits, hidden_states, past_key_values as requested
+            Dictionary with logits, hidden_states, past_key_values, and loss if labels provided
         """
         batch_size, seq_length = input_ids.shape
 
@@ -173,7 +175,22 @@ class ReasoningTransformer(nn.Module):
                 # Tied embeddings
                 logits = F.linear(hidden_states, self.embed_tokens.weight)
 
+        # Compute loss if labels provided
+        loss = None
+        if labels is not None and logits is not None:
+            # Shift for next-token prediction
+            shift_logits = logits[..., :-1, :].contiguous()
+            shift_labels = labels[..., 1:].contiguous()
+
+            # Flatten for loss computation
+            loss = F.cross_entropy(
+                shift_logits.view(-1, self.config.vocab_size),
+                shift_labels.view(-1),
+                ignore_index=-100,  # Ignore padding
+            )
+
         return {
+            "loss": loss,
             "logits": logits,
             "hidden_states": all_hidden_states,
             "past_key_values": new_past_key_values,
