@@ -65,13 +65,13 @@ def get_default_sources() -> List[Dict[str, Any]]:
             "category": "general",
             "format": "conversation",
         },
-        # Chain of thought - academic quality (Apache 2.0)
+        # Chain of thought - GSM8K with reasoning (MIT)
         {
-            "name": "kaist-ai/CoT-Collection",
+            "name": "openai/gsm8k",
             "split": "train",
-            "sample_size": 50000,
+            "sample_size": 7000,
             "category": "cot",
-            "format": "cot",
+            "format": "qa",
         },
         # Code reasoning (Apache 2.0)
         {
@@ -330,6 +330,11 @@ def load_and_format_dataset(
 
     print(f"Loading {name}...")
 
+    # Try loading with different configurations for compatibility
+    dataset = None
+    load_errors = []
+
+    # First try: with trust_remote_code (for datasets that need it)
     try:
         dataset = load_dataset(
             name,
@@ -337,8 +342,33 @@ def load_and_format_dataset(
             cache_dir=cache_dir,
             trust_remote_code=True,
         )
+    except TypeError as e:
+        # trust_remote_code not supported for this dataset
+        load_errors.append(f"trust_remote_code not supported: {e}")
+        try:
+            dataset = load_dataset(
+                name,
+                split=split,
+                cache_dir=cache_dir,
+            )
+        except Exception as e2:
+            load_errors.append(f"Standard load failed: {e2}")
     except Exception as e:
-        print(f"Warning: Failed to load {name}: {e}")
+        load_errors.append(f"Initial load failed: {e}")
+        # Try without trust_remote_code
+        try:
+            dataset = load_dataset(
+                name,
+                split=split,
+                cache_dir=cache_dir,
+            )
+        except Exception as e2:
+            load_errors.append(f"Fallback load failed: {e2}")
+
+    if dataset is None:
+        print(f"Warning: Failed to load {name}")
+        for err in load_errors:
+            print(f"  - {err}")
         return None
 
     # Sample if needed

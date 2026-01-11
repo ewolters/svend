@@ -22,7 +22,7 @@ import torch
 import torch.nn as nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
-from torch.cuda.amp import GradScaler, autocast
+from torch.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 
 try:
@@ -309,7 +309,7 @@ class Trainer:
 
             # Forward pass with optional mixed precision
             if self.config.mixed_precision:
-                with autocast(dtype=self.autocast_dtype):
+                with autocast(device_type='cuda', dtype=self.autocast_dtype):
                     outputs = self.model(
                         input_ids=batch["input_ids"],
                         attention_mask=batch.get("attention_mask"),
@@ -410,7 +410,7 @@ class Trainer:
             batch = {k: v.to(self.device) for k, v in batch.items()}
 
             if self.config.mixed_precision:
-                with autocast(dtype=self.autocast_dtype):
+                with autocast(device_type='cuda', dtype=self.autocast_dtype):
                     outputs = self.model(
                         input_ids=batch["input_ids"],
                         attention_mask=batch.get("attention_mask"),
