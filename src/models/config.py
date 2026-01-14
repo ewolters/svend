@@ -292,6 +292,49 @@ def create_1b_config() -> TransformerConfig:
     )
 
 
+def create_1_5b_reasoning_config() -> TransformerConfig:
+    """
+    1.5B Reasoning specialist - sweet spot for tool-augmented reasoning.
+
+    ~27GB training on A100, leaves plenty of headroom for larger batches.
+    Good balance of capability vs iteration speed.
+    """
+    return TransformerConfig(
+        name="svend-reasoning-1.5b",
+        model_type="reasoning",
+        vocab_size=32000,
+        hidden_size=2048,
+        intermediate_size=5504,
+        num_hidden_layers=28,
+        num_attention_heads=16,
+        num_key_value_heads=4,
+        max_position_embeddings=8192,
+        hidden_act="swiglu",
+        tool_calling=True,
+    )
+
+
+def create_2b_reasoning_config() -> TransformerConfig:
+    """
+    2B Reasoning specialist - higher capability, still fits A100 80GB.
+
+    ~33GB training. Recommended for production reasoning specialist.
+    """
+    return TransformerConfig(
+        name="svend-reasoning-2b",
+        model_type="reasoning",
+        vocab_size=32000,
+        hidden_size=2304,
+        intermediate_size=6144,
+        num_hidden_layers=28,
+        num_attention_heads=18,
+        num_key_value_heads=6,
+        max_position_embeddings=8192,
+        hidden_act="swiglu",
+        tool_calling=True,
+    )
+
+
 def create_3b_config() -> TransformerConfig:
     """3B reasoner - solid mid-range option."""
     return TransformerConfig(
@@ -503,6 +546,8 @@ MODEL_CONFIGS = {
     # Single model configs (legacy + scaled)
     "500m": create_500m_config,
     "1b": create_1b_config,
+    "1.5b": create_1_5b_reasoning_config,
+    "2b": create_2b_reasoning_config,
     "3b": create_3b_config,
     "3b-verifier": create_3b_verifier_config,
     "7b": create_7b_reasoner_config,
@@ -512,6 +557,8 @@ MODEL_CONFIGS = {
     "router": create_router_config,
     "language": create_language_specialist_config,
     "reasoning": create_reasoning_specialist_config,
+    "reasoning-1.5b": create_1_5b_reasoning_config,
+    "reasoning-2b": create_2b_reasoning_config,
     "verifier": create_verifier_specialist_config,
 }
 

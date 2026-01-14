@@ -1,0 +1,13 @@
+
+============================================================
+SVEND QUICK TEST
+============================================================
+Checkpoint: checkpoints\language-500m-20260112\final-language-model.pt
+Device: cuda
+============================================================
+
+Loading model...
+  Loaded checkpoint with keys: ['model_state_dict', 'config', 'tokenizer_name', 'training_steps', 'training_config']
+  Model config: unknown
+
+  ERROR: Failed to load model: cannot import name 'get_model_config' from 'src.models.config' (C:\Users\ewolt\juniperware\reasoning-lab\src\models\config.py)

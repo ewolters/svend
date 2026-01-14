@@ -1,0 +1,17 @@
+CUDA not available, using CPU
+======================================================================
+SVEND EVALUATION PIPELINE - STAGE: LANGUAGE
+======================================================================
+Loading checkpoint: checkpoints\language-500m-20260112\final-language-model.pt
+Traceback (most recent call last):
+  File "C:\Users\ewolt\juniperware\reasoning-lab\scripts\eval_pipeline.py", line 678, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\ewolt\juniperware\reasoning-lab\scripts\eval_pipeline.py", line 649, in main
+    report = eval_language_model(args.checkpoint, args.device)
+  File "C:\Users\ewolt\juniperware\reasoning-lab\scripts\eval_pipeline.py", line 265, in eval_language_model
+    model, tokenizer, config = load_model(checkpoint_path, device)
+                               ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ewolt\juniperware\reasoning-lab\scripts\eval_pipeline.py", line 153, in load_model
+    config = TransformerConfig(**checkpoint["config"])
+TypeError: TransformerConfig.__init__() got an unexpected keyword argument 'head_dim'

@@ -1,0 +1,9 @@
+[
+  {
+    "priority": 3,
+    "aspect": "tool_use",
+    "severity": "MEDIUM",
+    "issue": "Tool results not interpreted correctly: 75.0%",
+    "recommendation": "Train on interpreting tool outputs"
+  }
+]

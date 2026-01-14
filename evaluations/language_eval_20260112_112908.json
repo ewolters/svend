@@ -1,0 +1,75 @@
+{
+  "stage": "language_model",
+  "checkpoint_path": "checkpoints/checkpoint-110000.pt",
+  "timestamp": "2026-01-12T11:29:07.932069",
+  "results": [
+    {
+      "name": "Perplexity",
+      "passed": false,
+      "score": 59.05303677312774,
+      "threshold": 50.0,
+      "details": "Lower is better"
+    },
+    {
+      "name": "Completion Rate",
+      "passed": true,
+      "score": 1.0,
+      "threshold": 0.8,
+      "details": "8/8 successful"
+    },
+    {
+      "name": "Repetition Rate",
+      "passed": true,
+      "score": 0.125,
+      "threshold": 0.3,
+      "details": "1/8 repetitive (lower is better)"
+    },
+    {
+      "name": "Norwegian Score",
+      "passed": true,
+      "score": 0.7525,
+      "threshold": 0.4,
+      "details": "Communication directness (higher is better)"
+    }
+  ],
+  "overall_passed": false,
+  "recommendation": "REJECT - Failed: Perplexity. Retrain with more data/steps.",
+  "sample_outputs": [
+    {
+      "prompt": "The capital of France is",
+      "completion": "located in the commune of Le Havre. It is the centre of the commune of Le Havre. It is the capital of the commune of Le Havre.\n\nHistory\nThe town was first settled in the Roman era.",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "In 1969, humans first",
+      "completion": "appeared in the form of a large, single-cell organism called the \"Dorax\" (Dorax), which had an insect-like appearance.  It is an insect-like creature, and it was first described in 1972 by a",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "The theory of relativity states that",
+      "completion": "all the stars are in the same orbit around the sun. The theory of relativity states that the sun is in the same orbit around the sun.\n\nThe theory of relativity states that the sun is in the same orbit around the sun. The theory",
+      "norwegian_score": 0.65,
+      "success": true
+    },
+    {
+      "prompt": "Water boils at",
+      "completion": "the mouth of the river.\n\nThe river is a tributary of the Little River, which runs north to the mouth of the Little River. The river's source is the town of O'Sullivan, Maine, near the town of O",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "completion": "likely to have a larger mass than the sun. It is also likely to have a larger solar system.\n\n\u201cWe have not yet found a planet that is smaller than the sun,\u201d says Dr. Peter Hager, an astronomer",
+      "norwegian_score": 0.83,
+      "success": true
+    }
+  ],
+  "norwegian_analysis": {
+    "avg_score": 0.7525,
+    "theatrical_count": 0,
+    "preachy_count": 0,
+    "direct_count": 0
+  }
+}

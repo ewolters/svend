@@ -1,0 +1,75 @@
+{
+  "stage": "language_model",
+  "checkpoint_path": "checkpoints\\language-500m-20260112\\final-language-model.pt",
+  "timestamp": "2026-01-12T08:35:04.610678",
+  "results": [
+    {
+      "name": "Perplexity",
+      "passed": false,
+      "score": 76.386437442517,
+      "threshold": 50.0,
+      "details": "Lower is better"
+    },
+    {
+      "name": "Completion Rate",
+      "passed": true,
+      "score": 1.0,
+      "threshold": 0.8,
+      "details": "8/8 successful"
+    },
+    {
+      "name": "Repetition Rate",
+      "passed": true,
+      "score": 0.0,
+      "threshold": 0.3,
+      "details": "0/8 repetitive (lower is better)"
+    },
+    {
+      "name": "Norwegian Score",
+      "passed": true,
+      "score": 0.7775,
+      "threshold": 0.4,
+      "details": "Communication directness (higher is better)"
+    }
+  ],
+  "overall_passed": false,
+  "recommendation": "REJECT \u2192 Failed: Perplexity. Retrain with more data/steps.",
+  "sample_outputs": [
+    {
+      "prompt": "The capital of France is",
+      "completion": "still a city of its own. It is still a city of its own.\n\n\u201cThe main point of the story is the creation of a new city in the country.\u201d\n\nIt is a perfect example of how the city",
+      "norwegian_score": 0.75,
+      "success": true
+    },
+    {
+      "prompt": "In 1969, humans first",
+      "completion": "discovered the word \u2018douche\u2019 (a name of a place in the world) and it was soon recognized by the International Union of Conservationists.\n\nThe term \u2018douche\u2019 is still used today, and",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "The theory of relativity states that",
+      "completion": "the human mind is a fundamental part of human culture.\n\nThe theory of relativity is called quantum theory, and is the most widely accepted theory. It is based on the theory of quantum mechanics, and has been used by the American physicist, John",
+      "norwegian_score": 0.75,
+      "success": true
+    },
+    {
+      "prompt": "Water boils at",
+      "completion": "its source.\n\nThe first time I saw the new water is in the fall, when the water has been warm and moist. This is why I\u2019ve never seen a river. But in the spring, it\u2019s a lot",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "completion": "the Earth, with an estimated 2.4 billion square kilometers of solar panels. The solar system is a vast system, with an estimated 4.1 billion square kilometers of solar panels. The planet is the second largest solar system in the solar system,",
+      "norwegian_score": 0.75,
+      "success": true
+    }
+  ],
+  "norwegian_analysis": {
+    "avg_score": 0.7775,
+    "theatrical_count": 0,
+    "preachy_count": 0,
+    "direct_count": 0
+  }
+}

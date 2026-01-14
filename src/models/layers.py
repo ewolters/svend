@@ -177,7 +177,12 @@ class GroupedQueryAttention(nn.Module):
         value_states = value_states.view(batch_size, seq_length, self.num_kv_heads, self.head_dim).transpose(1, 2)
 
         # Apply rotary embeddings
-        cos, sin = self.rotary_emb(value_states, seq_length)
+        # Use max position_id + 1 to ensure we have enough embeddings for KV cache generation
+        if position_ids is not None:
+            rope_seq_len = int(position_ids.max().item()) + 1
+        else:
+            rope_seq_len = seq_length
+        cos, sin = self.rotary_emb(value_states, rope_seq_len)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
 
         # Handle KV cache for inference

@@ -1,0 +1,75 @@
+{
+  "stage": "language_model",
+  "checkpoint_path": "checkpoints\\language-500m-20260112\\final-language-model.pt",
+  "timestamp": "2026-01-12T08:36:05.216128",
+  "results": [
+    {
+      "name": "Perplexity",
+      "passed": false,
+      "score": 76.386437442517,
+      "threshold": 50.0,
+      "details": "Lower is better"
+    },
+    {
+      "name": "Completion Rate",
+      "passed": true,
+      "score": 1.0,
+      "threshold": 0.8,
+      "details": "8/8 successful"
+    },
+    {
+      "name": "Repetition Rate",
+      "passed": true,
+      "score": 0.0,
+      "threshold": 0.3,
+      "details": "0/8 repetitive (lower is better)"
+    },
+    {
+      "name": "Norwegian Score",
+      "passed": true,
+      "score": 0.8075,
+      "threshold": 0.4,
+      "details": "Communication directness (higher is better)"
+    }
+  ],
+  "overall_passed": false,
+  "recommendation": "REJECT - Failed: Perplexity. Retrain with more data/steps.",
+  "sample_outputs": [
+    {
+      "prompt": "The capital of France is",
+      "completion": "the capital of the Republic.\n\nHistory\nIn the 11th century, the town was first mentioned as Cappadocat.\n\nThe town was originally called Cappadocat-en-Cappadocat-en",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "In 1969, humans first",
+      "completion": "found a way to recognize the human body.\n\nThe first humans to get to know the human body was the Spanish American anthropologist Pedro Luis Ochoa, who was a member of the Spanish American Society of the Americas.\n\nOcho",
+      "norwegian_score": 0.91,
+      "success": true
+    },
+    {
+      "prompt": "The theory of relativity states that",
+      "completion": "the universe is composed of two parts, one of which is the universe. This is not a scientific theory. It is an empirical theory. The theory of gravity is the first theory of the universe. It is not a mathematical theory.\n\nThis",
+      "norwegian_score": 0.91,
+      "success": true
+    },
+    {
+      "prompt": "Water boils at",
+      "completion": "a distance of about 3 feet.\n\n\u201cWe don\u2019t know how it happened, but we\u2019re trying to figure out how the truck will be doing on the bridge,\u201d said the truck owner, David A.",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "completion": "the Sun.\n\nThe Sun is about 6,000 light-years away, but the solar system is so small that it is impossible to accurately estimate its light source. So, the Sun\u2019s solar system is a very good place to",
+      "norwegian_score": 0.75,
+      "success": true
+    }
+  ],
+  "norwegian_analysis": {
+    "avg_score": 0.8075,
+    "theatrical_count": 0,
+    "preachy_count": 0,
+    "direct_count": 2
+  }
+}

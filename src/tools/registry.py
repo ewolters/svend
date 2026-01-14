@@ -20,6 +20,10 @@ class ToolStatus(Enum):
     ERROR = "error"
     TIMEOUT = "timeout"
     INVALID_INPUT = "invalid_input"
+    # Epistemic statuses - for intellectual honesty
+    CANNOT_VERIFY = "cannot_verify"  # Result correct but unverifiable (search space too large, etc.)
+    UNCERTAIN = "uncertain"  # Tool ran but confidence is low
+    PARTIAL = "partial"  # Partial result (e.g., bounded search didn't complete)
 
 
 @dataclass
@@ -46,6 +50,16 @@ class ToolResult:
             if isinstance(self.output, str):
                 return self.output
             return json.dumps(self.output, indent=2)
+        elif self.status == ToolStatus.CANNOT_VERIFY:
+            # Explicitly flag unverifiable results
+            output_str = self.output if isinstance(self.output, str) else json.dumps(self.output, indent=2)
+            return f"[CANNOT VERIFY] {output_str}"
+        elif self.status == ToolStatus.UNCERTAIN:
+            output_str = self.output if isinstance(self.output, str) else json.dumps(self.output, indent=2)
+            return f"[UNCERTAIN] {output_str}"
+        elif self.status == ToolStatus.PARTIAL:
+            output_str = self.output if isinstance(self.output, str) else json.dumps(self.output, indent=2)
+            return f"[PARTIAL] {output_str}"
         else:
             return f"Error: {self.error}"
 

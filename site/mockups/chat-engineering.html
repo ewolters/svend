@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Svend - Engineering Examples</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0f0a;
+            --bg-secondary: #0d120d;
+            --bg-tertiary: #121a12;
+            --bg-hover: #1a261a;
+            --accent-primary: #4a9f6e;
+            --accent-primary-dim: rgba(74, 159, 110, 0.15);
+            --accent-primary-border: rgba(74, 159, 110, 0.3);
+            --accent-blue: #3a7f8f;
+            --accent-purple: #5a4f7f;
+            --accent-gold: #e8c547;
+            --accent-orange: #e89547;
+            --accent-red: #9f5a5a;
+            --text-primary: #e8efe8;
+            --text-secondary: #9aaa9a;
+            --text-dim: #5a6a5a;
+            --tool-physics: #5a4f7f;
+            --tool-python: #4a9f6e;
+            --tool-circuits: #e8c547;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .katex { font-size: 1.1em; color: var(--text-primary); }
+        .katex-display { margin: 0.75rem 0; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo { display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.3em; }
+        .logo-icon { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+        .logo-icon svg { width: 100%; height: 100%; fill: none; stroke: var(--text-primary); stroke-width: 20; }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            background: var(--accent-primary-dim);
+            border: 1px solid var(--accent-primary-border);
+            border-radius: 4px;
+            color: var(--accent-primary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .chat-history { flex: 1; overflow-y: auto; padding: 0.5rem; }
+
+        .chat-history-item {
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-bottom: 0.25rem;
+        }
+
+        .chat-history-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .chat-history-item.active { background: var(--accent-primary-dim); color: var(--text-primary); }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-info { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; }
+
+        .user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--accent-primary-dim);
+            border: 1px solid var(--accent-primary-border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; color: var(--accent-primary);
+        }
+
+        .user-name { font-size: 0.85rem; }
+        .user-tier { font-size: 0.7rem; color: var(--text-dim); }
+
+        /* Main */
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-title { font-size: 0.9rem; font-weight: 400; }
+
+        .messages {
+            flex: 1; overflow-y: auto; padding: 1.5rem;
+            display: flex; flex-direction: column; gap: 2rem;
+        }
+
+        .message { max-width: 900px; width: 100%; margin: 0 auto; }
+
+        .message-user { display: flex; justify-content: flex-end; }
+
+        .message-user .message-content {
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px 12px 4px 12px;
+            padding: 1rem 1.25rem;
+            max-width: 70%;
+        }
+
+        .message-assistant { display: flex; flex-direction: column; gap: 1rem; }
+
+        .message-header { display: flex; align-items: center; gap: 0.5rem; }
+
+        .assistant-icon {
+            width: 24px; height: 24px; border-radius: 4px;
+            background: var(--accent-primary-dim);
+            border: 1px solid var(--accent-primary-border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .assistant-name { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
+
+        /* Reasoning Panel */
+        .reasoning-panel {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(74, 159, 110, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .reasoning-header {
+            padding: 0.75rem 1rem;
+            background: rgba(74, 159, 110, 0.05);
+            border-bottom: 1px solid rgba(74, 159, 110, 0.1);
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .reasoning-title {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.75rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--accent-primary);
+        }
+
+        .reasoning-meta {
+            display: flex; align-items: center; gap: 1rem;
+            font-size: 0.75rem; color: var(--text-dim);
+        }
+
+        .reasoning-steps { padding: 1.25rem; }
+
+        .step { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .step:last-child { margin-bottom: 0; }
+
+        .step-indicator { display: flex; flex-direction: column; align-items: center; }
+
+        .step-number {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--accent-primary-dim);
+            border: 1px solid var(--accent-primary-border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 500; color: var(--accent-primary);
+        }
+
+        .step-line {
+            flex: 1; width: 1px;
+            background: rgba(74, 159, 110, 0.2);
+            min-height: 30px;
+        }
+
+        .step-content { flex: 1; padding-bottom: 0.5rem; }
+
+        .step-label {
+            font-size: 0.7rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--text-dim); margin-bottom: 0.5rem;
+        }
+
+        .step-text {
+            font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7;
+        }
+
+        /* Math display */
+        .math-display {
+            background: var(--bg-primary);
+            border: 1px solid rgba(90, 79, 127, 0.2);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            margin: 0.75rem 0;
+            text-align: center;
+        }
+
+        /* Diagram container */
+        .diagram-container {
+            background: var(--bg-primary);
+            border: 1px solid rgba(90, 79, 127, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .diagram-container svg {
+            max-width: 100%;
+        }
+
+        /* Circuit diagram */
+        .circuit-container {
+            background: var(--bg-primary);
+            border: 1px solid rgba(232, 197, 71, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Engineering table */
+        .eng-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.75rem 0;
+            font-size: 0.85rem;
+        }
+
+        .eng-table th,
+        .eng-table td {
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(90, 79, 127, 0.15);
+        }
+
+        .eng-table th {
+            color: var(--accent-purple);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .eng-table td {
+            color: var(--text-secondary);
+        }
+
+        .eng-table td:last-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        /* Tool Call */
+        .tool-call {
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin: 0.75rem 0;
+            overflow: hidden;
+        }
+
+        .tool-call--physics {
+            border: 1px solid rgba(90, 79, 127, 0.25);
+        }
+
+        .tool-call--physics .tool-call-header {
+            background: rgba(90, 79, 127, 0.1);
+            border-bottom: 1px solid rgba(90, 79, 127, 0.15);
+        }
+
+        .tool-call--physics .tool-call-result {
+            background: rgba(90, 79, 127, 0.05);
+            border-top: 1px solid rgba(90, 79, 127, 0.1);
+            color: var(--accent-purple);
+        }
+
+        .tool-call--circuits {
+            border: 1px solid rgba(232, 197, 71, 0.25);
+        }
+
+        .tool-call--circuits .tool-call-header {
+            background: rgba(232, 197, 71, 0.1);
+            border-bottom: 1px solid rgba(232, 197, 71, 0.15);
+        }
+
+        .tool-call--circuits .tool-call-result {
+            background: rgba(232, 197, 71, 0.05);
+            border-top: 1px solid rgba(232, 197, 71, 0.1);
+            color: var(--accent-gold);
+        }
+
+        .tool-call--python {
+            border: 1px solid rgba(74, 159, 110, 0.25);
+        }
+
+        .tool-call--python .tool-call-header {
+            background: rgba(74, 159, 110, 0.1);
+            border-bottom: 1px solid rgba(74, 159, 110, 0.15);
+        }
+
+        .tool-call--python .tool-call-result {
+            background: rgba(74, 159, 110, 0.05);
+            border-top: 1px solid rgba(74, 159, 110, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .tool-call-header {
+            padding: 0.5rem 0.75rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .tool-badge {
+            padding: 0.2rem 0.5rem; border-radius: 3px;
+            font-size: 0.65rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+
+        .tool-badge--physics {
+            background: rgba(90, 79, 127, 0.15);
+            color: var(--tool-physics);
+        }
+
+        .tool-badge--circuits {
+            background: rgba(232, 197, 71, 0.15);
+            color: var(--tool-circuits);
+        }
+
+        .tool-badge--python {
+            background: rgba(74, 159, 110, 0.15);
+            color: var(--accent-primary);
+        }
+
+        .tool-call-name { font-size: 0.75rem; color: var(--text-dim); }
+
+        .tool-call-body { padding: 0.75rem; }
+
+        .code-block {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; line-height: 1.5;
+            color: var(--text-primary); white-space: pre-wrap;
+        }
+
+        .tool-call-result {
+            padding: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        /* Final Answer */
+        .final-answer {
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(232, 197, 71, 0.15);
+            border-radius: 8px;
+        }
+
+        .final-answer-label {
+            font-size: 0.7rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .final-answer-text {
+            font-size: 1rem; line-height: 1.8; color: var(--text-primary);
+        }
+
+        .answer-box {
+            display: inline-block;
+            padding: 0.75rem 1.25rem;
+            background: rgba(232, 197, 71, 0.08);
+            border: 1px solid rgba(232, 197, 71, 0.2);
+            border-radius: 6px;
+            margin-top: 0.5rem;
+        }
+
+        .verified-badge {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.15rem 0.4rem; background: rgba(74, 159, 110, 0.15);
+            border-radius: 3px; font-size: 0.65rem; color: var(--accent-primary);
+        }
+
+        /* Unit highlight */
+        .unit-highlight {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: rgba(90, 79, 127, 0.15);
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-purple);
+        }
+
+        /* Warning box */
+        .warning-box {
+            padding: 0.75rem 1rem;
+            background: rgba(159, 90, 90, 0.1);
+            border: 1px solid rgba(159, 90, 90, 0.2);
+            border-radius: 6px;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--accent-red);
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 1rem 1.5rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .input-container { max-width: 900px; margin: 0 auto; position: relative; }
+
+        .input-box {
+            width: 100%; padding: 1rem 1.25rem; padding-right: 100px;
+            background: var(--bg-secondary);
+            border: 1px solid rgba(74, 159, 110, 0.2);
+            border-radius: 8px; color: var(--text-primary);
+            font-family: inherit; font-size: 0.95rem;
+            resize: none; outline: none; min-height: 56px;
+        }
+
+        .input-box::placeholder { color: var(--text-dim); }
+        .input-box:focus { border-color: rgba(74, 159, 110, 0.4); }
+
+        .input-actions { position: absolute; right: 0.75rem; bottom: 0.75rem; }
+
+        .send-btn {
+            padding: 0.5rem 1rem; background: var(--accent-primary);
+            border: none; border-radius: 4px; color: var(--bg-primary);
+            font-family: inherit; font-size: 0.85rem; font-weight: 500;
+            cursor: pointer;
+        }
+
+        .send-btn:hover { background: #5ab87e; }
+
+        .input-hint {
+            text-align: center; margin-top: 0.75rem;
+            font-size: 0.75rem; color: var(--text-dim);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+
+        @media (max-width: 900px) { .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><span class="logo-icon"><svg viewBox="590 180 400 680" xmlns="http://www.w3.org/2000/svg"><path d="m 810.34961,183.98438 c -8.00929,0.28308 -15.5701,3.48413 -22.48495,7.32376 -12.87788,7.1817 -24.40922,16.65459 -37.84868,22.84732 -4.31757,2.08674 -9.12821,2.91574 -13.3771,5.16756 -7.15857,3.4834 -13.4768,8.9205 -17.4074,15.89893 -4.63628,8.03202 -6.3024,17.46727 -6.06699,26.65644 0.0985,4.79617 0.75632,9.56171 1.64764,14.269 0.0476,1.43947 -0.58472,2.80552 -0.6551,4.24336 -0.75319,5.38879 0.11601,11.14811 3.19493,15.71841 3.74987,5.93489 9.53028,10.16542 15.27939,14.00871 10.15322,6.72796 21.26277,12.12274 30.43779,20.24424 0.72261,0.57357 1.06428,1.45781 1.01481,2.36706 0.25419,10.62114 0.26429,21.24817 0.15168,31.87217 -0.10997,9.76491 -0.23395,19.53062 -0.32352,29.29514 -0.2559,2.18138 -2.48681,3.93272 -4.67536,3.50098 -1.73761,-0.32579 -2.97662,-1.73361 -4.40792,-2.66331 -35.6616,-26.03244 -71.15984,-52.30412 -107.51397,-77.36576 -1.79592,-1.18526 -3.52006,-2.4953 -5.36053,-3.6031 -2.38777,-1.13215 -5.02429,-1.65761 -7.63204,-1.97563 -6.86268,-0.69881 -13.69347,1.24508 -19.88444,4.07709 -9.03352,4.05728 -17.18145,9.7518 -25.58752,14.92132 -3.36838,2.10086 -6.87005,4.24739 -10.41869,6.1631 -0.99569,0.52942 -2.22,1.17581 -3.31848,1.71944 -4.07079,2.03607 -8.31873,3.71411 -12.69879,4.95454 -4.02638,1.19323 -7.8786,3.2257 -10.74869,6.34031 -2.96251,3.09048 -4.72915,7.11427 -5.71781,11.23537 -1.55545,6.40335 -1.57897,13.05115 -1.41863,19.6009 0.26795,9.17433 1.23843,18.2732 1.00241,27.46227 0.0207,3.42545 -1.03941,6.75735 -0.90681,10.1895 0.001,5.08446 1.56132,10.25252 4.8747,14.1707 4.43736,5.53069 10.76398,9.06598 17.04291,12.11545 11.82295,5.71965 24.58514,9.32817 36.12161,15.66465 2.63761,1.56679 5.14743,3.4485 8.1405,4.29671 4.09389,1.33597 8.5369,1.2958 12.69456,0.26955 7.31277,-1.64267 13.9237,-5.32376 20.51953,-8.74387 4.35604,-2.28907 8.66919,-4.70056 13.22314,-6.57805 2.19027,-0.44436 4.29633,0.48096 6.39883,0.88652 1.12616,0.30405 2.24944,0.63792 3.42471,1.02929 9.89759,3.32419 18.80495,8.95253 27.35797,14.83159 9.60214,6.67635 18.83584,13.8873 28.67442,20.21701 1.81523,1.44232 2.01025,4.45281 0.29511,6.05269 -1.18127,1.12727 -2.69962,1.81802 -4.02559,2.7576 -20.09966,13.11068 -40.67378,25.47586 -60.8399,38.48291 -9.96369,-3.64417 -18.76816,-9.70519 -28.31054,-14.23828 -5.34352,-2.47216 -11.27535,-4.34129 -17.22237,-3.5115 -2.23037,0.31113 -4.43888,1.00335 -6.29472,2.30511 -9.41413,5.6132 -20.00552,8.69886 -30.20947,12.5061 -7.8109,2.84323 -15.72475,5.92179 -22.32775,11.09558 -4.14348,3.33658 -7.40401,8.02695 -8.19394,13.36751 -0.75011,4.4178 0.0808,8.89125 -0.11393,13.33558 -0.0446,2.47431 -0.1663,4.78571 -0.33618,7.26123 -0.7016,9.88267 -2.18914,19.87652 -1.92566,29.86437 0.15833,5.61102 0.98818,11.38546 3.72433,16.36565 2.44787,4.28244 6.64099,7.37128 11.27534,8.93309 2.96165,1.01936 5.95313,1.9621 8.82273,3.22974 16.61941,6.96981 31.54004,17.40843 48.2906,24.09353 8.35504,3.30306 17.3626,5.41067 26.39188,4.73995 1.59654,-0.65955 2.95687,-1.7592 4.46121,-2.59492 34.97252,-21.48909 67.36925,-46.77662 100.70996,-70.64113 2.40223,-1.72533 4.80662,-3.4479 7.20969,-5.17216 3.12283,0.94464 6.45003,2.34189 8.1566,5.30326 2.63181,4.23393 2.95848,9.37168 3.10974,14.22553 0.0833,3.31727 0.004,6.60823 -0.11791,9.87356 -0.21995,6.79385 -0.7923,13.61211 -0.125,20.39843 0.20259,2.16638 0.20474,4.521 -0.33146,6.70372 -1.0519,4.92922 -3.98913,9.33555 -7.88721,12.48684 -4.60501,3.92369 -10.18337,6.53657 -15.54322,9.09565 -5.27007,2.60362 -10.87123,4.82949 -15.34311,8.75008 -3.14872,2.8351 -5.29862,6.60832 -6.92578,10.47774 -3.38575,8.39922 -4.00047,17.60263 -3.79623,26.56693 0.33468,12.34083 2.50879,24.53129 4.78404,36.63584 23.29475,15.98048 48.86901,28.22319 74.1637,40.59903 3.68993,1.78904 7.35713,3.65372 11.08044,5.36581 1.3382,0.36422 2.72081,0.68421 4.08264,0.85588 14.97883,-4.04776 28.84434,-11.24143 42.34205,-18.73961 11.53711,-6.35617 22.86975,-13.13079 34.83628,-18.66637 4.22894,-1.55707 8.44379,-3.61358 11.45999,-7.06209 4.09602,-4.4785 5.93166,-10.51995 6.66278,-16.43202 0.92354,-7.35214 0.49188,-14.78778 -0.0139,-22.15442 -0.67411,-9.31054 -1.67798,-18.63084 -1.29362,-27.9791 -5.24479,-6.86889 -12.45843,-11.86973 -19.80582,-16.25267 -5.70939,-3.42205 -11.57773,-6.5755 -17.2495,-9.97521 -3.48793,-2.1042 -6.91214,-4.29698 -10.24384,-6.71085 -0.72961,-0.25274 -0.3909,-1.04781 -0.45847,-1.63664 0.10339,-17.34117 -0.25832,-34.68823 0.31622,-52.02424 0.0871,-2.86433 0.24803,-5.86427 0.35547,-8.77734 0.24524,-1.51291 0.97602,-2.92863 1.82743,-4.17922 1.01119,-0.96492 2.69388,-0.72675 3.64269,0.20957 13.7572,9.30561 27.45185,18.70282 41.06504,28.21769 14.32134,10.01422 28.62533,20.04233 42.89178,30.13048 9.85111,7.13736 19.42479,14.89572 30.55621,19.99718 6.32797,2.8654 13.46903,4.59642 20.40357,3.28445 5.01892,-0.91491 9.51952,-3.53842 13.56592,-6.54339 4.1904,-2.64327 8.6938,-4.74592 13.1878,-6.81289 12.49,-5.62316 25.6326,-9.85522 37.5685,-16.66375 6.6826,-3.86072 12.9614,-8.79041 17.159,-15.36138 0.077,-0.98215 -0.1432,-2.04092 -0.1765,-3.05218 -1.0891,-15.56938 0.8661,-31.18693 -0.42,-46.74805 -0.6817,-7.73457 -2.3041,-15.61186 -6.4028,-22.31119 -0.698,-1.07942 -1.3987,-2.21543 -2.2632,-3.14351 -6.5959,-2.34922 -12.9212,-5.37852 -19.1484,-8.56287 -8.7431,-4.45721 -17.485,-9.32684 -26.689,-12.95173 -7.9225,-3.0727 -16.4727,-5.18735 -25.01999,-4.27874 -0.69625,0.0946 -1.45907,0.031 -1.9507,0.62492 -1.86973,1.50356 -4.00206,2.99524 -5.93993,4.18562 -3.11255,1.91641 -6.61385,3.63178 -10.16309,4.85819 -5.17482,1.81524 -10.69246,2.62925 -16.17089,2.39377 -0.76721,-0.0353 -1.83478,-0.10813 -2.71485,-0.19727 -8.76802,-0.87792 -17.09685,-4.23876 -24.66465,-8.63987 -6.70946,-3.87704 -12.94638,-8.62728 -18.84121,-13.55739 -5.3555,-2.04179 -10.86973,-4.46433 -14.67498,-8.91892 -2.71108,-3.28176 -3.6238,-8.13451 -1.72969,-12.03365 1.92136,-4.4162 5.87455,-7.47217 9.75916,-10.09482 7.41881,-4.95593 15.60058,-8.5845 23.40489,-12.86517 3.87755,-2.08906 7.78444,-4.23221 11.15815,-7.08878 2.01088,-1.89507 3.89167,-4.04315 6.46834,-5.18776 3.79471,-1.90744 8.31932,-2.18549 12.35001,-0.87941 6.3308,1.82617 11.47084,6.14955 17.28242,9.06683 1.89042,0.93426 3.95479,1.46325 5.78158,2.52681 6.71632,3.31352 14.54253,4.15556 21.85253,2.61957 9.4786,-1.84944 18.1485,-6.35056 26.5334,-10.96985 11.3346,-6.30144 22.2737,-13.46349 34.3962,-18.21392 4.2955,-10.61758 5.7235,-22.14012 6.0312,-33.51651 0.3858,-15.15412 -1.1682,-30.25794 -2.2616,-45.35263 -12.3858,-9.88221 -26.6329,-16.99787 -40.689,-24.14553 -9.5,-4.83571 -19.0575,-9.61979 -28.0582,-15.35042 -6.12007,-4.66644 -14.05816,-6.41988 -21.64672,-5.96219 -1.19198,-0.0473 -2.37843,0.32604 -3.2616,1.13778 -38.22332,26.10576 -75.04874,54.16648 -112.57695,81.24614 -2.71304,0.6413 -5.49842,-0.66111 -7.54085,-2.3846 -2.98399,-2.60674 -4.29719,-6.57185 -4.74676,-10.40275 -0.82369,-5.94443 -0.34169,-11.84447 -0.0213,-17.79103 0.33714,-6.47411 1.01497,-12.99967 0.0809,-19.45673 -0.74071,-5.92858 1.52712,-12.06105 5.76034,-16.24201 4.84104,-4.96478 11.25754,-7.86952 17.35846,-10.94667 3.99683,-2.00052 8.09479,-3.99903 11.43912,-7.01665 0.99698,-0.95764 1.86712,-2.07596 3.12921,-2.70104 5.52795,-3.56549 9.52876,-9.28516 11.25959,-15.60778 2.32363,-7.95342 2.23731,-16.36205 1.6583,-24.55425 -0.85794,-10.76518 -2.81251,-21.40013 -4.13281,-32.11133 -21.60154,-15.33596 -45.2301,-27.50365 -68.56022,-39.89174 -5.52038,-2.93006 -11.02072,-5.90598 -16.52315,-8.86385 -2.21137,-0.75553 -4.61644,-0.71584 -6.9264,-0.73464 z"/></svg></span>SVEND</div>
+            <button class="new-chat-btn">+ New Chat</button>
+        </div>
+        <div class="chat-history">
+            <div class="chat-history-item active">Beam deflection</div>
+            <div class="chat-history-item">RC circuit analysis</div>
+            <div class="chat-history-item">Heat transfer</div>
+            <div class="chat-history-item">Fluid dynamics</div>
+            <div class="chat-history-item">Control systems</div>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">EW</div>
+                <div>
+                    <div class="user-name">eric.wolters@svend.ai</div>
+                    <div class="user-tier">Beta Access</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="chat-header">
+            <div class="chat-title">Structural analysis</div>
+        </header>
+
+        <div class="messages">
+            <!-- User Message -->
+            <div class="message message-user">
+                <div class="message-content">
+                    A simply supported steel beam (W200×46) spans 6m and carries a uniformly distributed load of 15 kN/m. Calculate the maximum deflection and check if it meets L/360 serviceability limit.
+                </div>
+            </div>
+
+            <!-- Assistant Response -->
+            <div class="message message-assistant">
+                <div class="message-header">
+                    <div class="assistant-icon">S</div>
+                    <span class="assistant-name">Svend</span>
+                </div>
+
+                <div class="reasoning-panel">
+                    <div class="reasoning-header">
+                        <div class="reasoning-title">
+                            <span>&#9670;</span> Reasoning
+                        </div>
+                        <div class="reasoning-meta">
+                            <span>5 steps</span>
+                            <span>2 tool calls</span>
+                            <span class="verified-badge">&#10003; Verified</span>
+                        </div>
+                    </div>
+
+                    <div class="reasoning-steps">
+                        <!-- Step 1: Identify properties -->
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">1</div>
+                                <div class="step-line"></div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Section Properties</div>
+                                <div class="step-text">
+                                    Looking up W200×46 steel section properties:
+                                </div>
+                                <table class="eng-table">
+                                    <tr>
+                                        <th>Property</th>
+                                        <th>Symbol</th>
+                                        <th>Value</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Moment of Inertia</td>
+                                        <td>I<sub>x</sub></td>
+                                        <td>45.5 × 10⁶ mm⁴</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Elastic Modulus (Steel)</td>
+                                        <td>E</td>
+                                        <td>200 GPa</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Span Length</td>
+                                        <td>L</td>
+                                        <td>6000 mm</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Distributed Load</td>
+                                        <td>w</td>
+                                        <td>15 kN/m = 15 N/mm</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Draw diagram -->
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">2</div>
+                                <div class="step-line"></div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Loading Diagram</div>
+                                <div class="diagram-container">
+                                    <svg width="500" height="180" viewBox="0 0 500 180">
+                                        <!-- Beam -->
+                                        <rect x="50" y="80" width="400" height="12" fill="#5a4f7f" rx="2"/>
+
+                                        <!-- Left support (pin) -->
+                                        <polygon points="50,92 35,130 65,130" fill="none" stroke="#9aaa9a" stroke-width="2"/>
+                                        <line x1="30" y1="130" x2="70" y2="130" stroke="#9aaa9a" stroke-width="2"/>
+                                        <circle cx="50" cy="92" r="4" fill="#9aaa9a"/>
+
+                                        <!-- Right support (roller) -->
+                                        <polygon points="450,92 435,130 465,130" fill="none" stroke="#9aaa9a" stroke-width="2"/>
+                                        <line x1="430" y1="135" x2="470" y2="135" stroke="#9aaa9a" stroke-width="2"/>
+                                        <circle cx="450" cy="130" r="5" fill="none" stroke="#9aaa9a" stroke-width="2"/>
+
+                                        <!-- Distributed load arrows -->
+                                        <g stroke="#e89547" stroke-width="1.5" fill="#e89547">
+                                            <line x1="70" y1="30" x2="70" y2="75"/>
+                                            <polygon points="70,75 66,65 74,65"/>
+                                            <line x1="110" y1="30" x2="110" y2="75"/>
+                                            <polygon points="110,75 106,65 114,65"/>
+                                            <line x1="150" y1="30" x2="150" y2="75"/>
+                                            <polygon points="150,75 146,65 154,65"/>
+                                            <line x1="190" y1="30" x2="190" y2="75"/>
+                                            <polygon points="190,75 186,65 194,65"/>
+                                            <line x1="230" y1="30" x2="230" y2="75"/>
+                                            <polygon points="230,75 226,65 234,65"/>
+                                            <line x1="270" y1="30" x2="270" y2="75"/>
+                                            <polygon points="270,75 266,65 274,65"/>
+                                            <line x1="310" y1="30" x2="310" y2="75"/>
+                                            <polygon points="310,75 306,65 314,65"/>
+                                            <line x1="350" y1="30" x2="350" y2="75"/>
+                                            <polygon points="350,75 346,65 354,65"/>
+                                            <line x1="390" y1="30" x2="390" y2="75"/>
+                                            <polygon points="390,75 386,65 394,65"/>
+                                            <line x1="430" y1="30" x2="430" y2="75"/>
+                                            <polygon points="430,75 426,65 434,65"/>
+                                        </g>
+
+                                        <!-- Load line -->
+                                        <line x1="70" y1="30" x2="430" y2="30" stroke="#e89547" stroke-width="2"/>
+
+                                        <!-- Labels -->
+                                        <text x="250" y="18" fill="#e89547" font-family="Inter" font-size="12" text-anchor="middle">w = 15 kN/m</text>
+                                        <text x="250" y="165" fill="#9aaa9a" font-family="Inter" font-size="12" text-anchor="middle">L = 6 m</text>
+
+                                        <!-- Dimension line -->
+                                        <line x1="50" y1="150" x2="450" y2="150" stroke="#5a6a5a" stroke-width="1"/>
+                                        <line x1="50" y1="145" x2="50" y2="155" stroke="#5a6a5a" stroke-width="1"/>
+                                        <line x1="450" y1="145" x2="450" y2="155" stroke="#5a6a5a" stroke-width="1"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Deflection formula -->
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">3</div>
+                                <div class="step-line"></div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Apply Deflection Formula</div>
+                                <div class="step-text">
+                                    For a simply supported beam with UDL, maximum deflection at midspan:
+                                </div>
+                                <div class="math-display">
+                                    $\delta_{max} = \frac{5wL^4}{384EI}$
+                                </div>
+                                <div class="tool-call tool-call--physics">
+                                    <div class="tool-call-header">
+                                        <span class="tool-badge tool-badge--physics">Physics</span>
+                                        <span class="tool-call-name">beam_deflection</span>
+                                    </div>
+                                    <div class="tool-call-body">
+                                        <code class="code-block"># Parameters (all in N and mm for consistency)
+w = 15  # N/mm (15 kN/m)
+L = 6000  # mm
+E = 200000  # MPa = N/mm²
+I = 45.5e6  # mm⁴
+
+# Maximum deflection for simply supported beam with UDL
+delta_max = (5 * w * L**4) / (384 * E * I)
+
+print(f"Maximum deflection: {delta_max:.2f} mm")</code>
+                                    </div>
+                                    <div class="tool-call-result">Maximum deflection: 17.58 mm</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Check serviceability -->
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">4</div>
+                                <div class="step-line"></div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Check Serviceability Limit</div>
+                                <div class="tool-call tool-call--python">
+                                    <div class="tool-call-header">
+                                        <span class="tool-badge tool-badge--python">Python</span>
+                                        <span class="tool-call-name">serviceability_check</span>
+                                    </div>
+                                    <div class="tool-call-body">
+                                        <code class="code-block"># Serviceability limit L/360
+L = 6000  # mm
+delta_max = 17.58  # mm
+
+allowable_deflection = L / 360
+ratio = delta_max / allowable_deflection
+
+print(f"Allowable deflection (L/360): {allowable_deflection:.2f} mm")
+print(f"Actual deflection: {delta_max:.2f} mm")
+print(f"Utilization ratio: {ratio:.2%}")
+print(f"Passes check: {delta_max <= allowable_deflection}")</code>
+                                    </div>
+                                    <div class="tool-call-result">Allowable deflection (L/360): 16.67 mm
+Actual deflection: 17.58 mm
+Utilization ratio: 105.49%
+Passes check: False</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Verify -->
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">5</div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Verify</div>
+                                <div class="step-text" style="color: var(--accent-primary);">
+                                    &#10003; Calculations verified using standard beam theory. Units consistent throughout.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Answer -->
+                <div class="final-answer">
+                    <div class="final-answer-label">
+                        <span>&#10003;</span> Answer
+                    </div>
+                    <div class="final-answer-text">
+                        <p><strong>Maximum Deflection:</strong></p>
+                        <div class="answer-box">
+                            δ<sub>max</sub> = <span class="unit-highlight">17.58 mm</span> at midspan
+                        </div>
+
+                        <p style="margin-top: 1rem;"><strong>Serviceability Check:</strong></p>
+                        <table class="eng-table" style="margin-top: 0.5rem;">
+                            <tr>
+                                <td>Allowable (L/360)</td>
+                                <td>16.67 mm</td>
+                            </tr>
+                            <tr>
+                                <td>Actual</td>
+                                <td>17.58 mm</td>
+                            </tr>
+                            <tr>
+                                <td>Utilization</td>
+                                <td style="color: var(--accent-red);">105.5% — FAILS</td>
+                            </tr>
+                        </table>
+
+                        <div class="warning-box">
+                            <strong>&#9888; Design does not meet L/360 serviceability limit.</strong><br>
+                            Consider: (1) Increase section size to W250×49 (I = 70.8×10⁶ mm⁴), or (2) Add intermediate support, or (3) Use L/240 limit if floor vibration is not critical.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Example: Circuit Analysis -->
+            <div class="message message-user">
+                <div class="message-content">
+                    Analyze this RC circuit: 12V DC source, R₁=2kΩ in series with parallel combination of R₂=4kΩ and C=10μF. Find total current and time constant.
+                </div>
+            </div>
+
+            <div class="message message-assistant">
+                <div class="message-header">
+                    <div class="assistant-icon">S</div>
+                    <span class="assistant-name">Svend</span>
+                </div>
+
+                <div class="reasoning-panel">
+                    <div class="reasoning-header">
+                        <div class="reasoning-title">
+                            <span>&#9670;</span> Reasoning
+                        </div>
+                        <div class="reasoning-meta">
+                            <span>4 steps</span>
+                            <span class="verified-badge">&#10003; Verified</span>
+                        </div>
+                    </div>
+
+                    <div class="reasoning-steps">
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">1</div>
+                                <div class="step-line"></div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Circuit Diagram</div>
+                                <div class="circuit-container">
+                                    <svg width="400" height="200" viewBox="0 0 400 200">
+                                        <!-- Voltage source -->
+                                        <line x1="50" y1="40" x2="50" y2="80" stroke="#e8c547" stroke-width="2"/>
+                                        <line x1="40" y1="80" x2="60" y2="80" stroke="#e8c547" stroke-width="2"/>
+                                        <line x1="45" y1="90" x2="55" y2="90" stroke="#e8c547" stroke-width="2"/>
+                                        <line x1="50" y1="90" x2="50" y2="160" stroke="#e8c547" stroke-width="2"/>
+                                        <text x="30" y="90" fill="#e8c547" font-family="JetBrains Mono" font-size="11">+</text>
+                                        <text x="65" y="70" fill="#e8efe8" font-family="Inter" font-size="11">12V</text>
+
+                                        <!-- Top wire to R1 -->
+                                        <line x1="50" y1="40" x2="120" y2="40" stroke="#e8c547" stroke-width="2"/>
+
+                                        <!-- R1 resistor -->
+                                        <path d="M120,40 l5,-8 l10,16 l10,-16 l10,16 l10,-16 l10,16 l5,-8" fill="none" stroke="#e8c547" stroke-width="2"/>
+                                        <text x="145" y="25" fill="#e8efe8" font-family="Inter" font-size="11">R₁ = 2kΩ</text>
+
+                                        <!-- Wire to parallel section -->
+                                        <line x1="180" y1="40" x2="220" y2="40" stroke="#e8c547" stroke-width="2"/>
+
+                                        <!-- Junction point -->
+                                        <circle cx="220" cy="40" r="3" fill="#e8c547"/>
+
+                                        <!-- Top branch (R2) -->
+                                        <line x1="220" y1="40" x2="220" y2="60" stroke="#e8c547" stroke-width="2"/>
+                                        <rect x="210" y="60" width="20" height="50" fill="none" stroke="#e8c547" stroke-width="2"/>
+                                        <text x="240" y="90" fill="#e8efe8" font-family="Inter" font-size="11">R₂ = 4kΩ</text>
+                                        <line x1="220" y1="110" x2="220" y2="130" stroke="#e8c547" stroke-width="2"/>
+
+                                        <!-- Bottom branch (C) -->
+                                        <line x1="220" y1="40" x2="300" y2="40" stroke="#e8c547" stroke-width="2"/>
+                                        <line x1="300" y1="40" x2="300" y2="75" stroke="#e8c547" stroke-width="2"/>
+                                        <line x1="290" y1="75" x2="310" y2="75" stroke="#e8c547" stroke-width="2"/>
+                                        <line x1="290" y1="85" x2="310" y2="85" stroke="#e8c547" stroke-width="2"/>
+                                        <line x1="300" y1="85" x2="300" y2="130" stroke="#e8c547" stroke-width="2"/>
+                                        <text x="315" y="85" fill="#e8efe8" font-family="Inter" font-size="11">C = 10μF</text>
+
+                                        <!-- Bottom junction -->
+                                        <circle cx="260" cy="130" r="3" fill="#e8c547"/>
+                                        <line x1="220" y1="130" x2="300" y2="130" stroke="#e8c547" stroke-width="2"/>
+
+                                        <!-- Return path -->
+                                        <line x1="260" y1="130" x2="260" y2="160" stroke="#e8c547" stroke-width="2"/>
+                                        <line x1="50" y1="160" x2="260" y2="160" stroke="#e8c547" stroke-width="2"/>
+
+                                        <!-- Ground symbol -->
+                                        <line x1="150" y1="160" x2="150" y2="170" stroke="#9aaa9a" stroke-width="2"/>
+                                        <line x1="140" y1="170" x2="160" y2="170" stroke="#9aaa9a" stroke-width="2"/>
+                                        <line x1="144" y1="175" x2="156" y2="175" stroke="#9aaa9a" stroke-width="2"/>
+                                        <line x1="148" y1="180" x2="152" y2="180" stroke="#9aaa9a" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">2</div>
+                                <div class="step-line"></div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Steady-State Analysis</div>
+                                <div class="step-text">
+                                    At DC steady state, the capacitor acts as an open circuit (no current through C branch):
+                                </div>
+                                <div class="tool-call tool-call--circuits">
+                                    <div class="tool-call-header">
+                                        <span class="tool-badge tool-badge--circuits">Circuits</span>
+                                        <span class="tool-call-name">dc_analysis</span>
+                                    </div>
+                                    <div class="tool-call-body">
+                                        <code class="code-block"># DC steady state: capacitor = open circuit
+V_source = 12  # V
+R1 = 2000  # Ω
+R2 = 4000  # Ω
+
+# At steady state, only R1 and R2 carry current
+R_total = R1 + R2
+I_total = V_source / R_total
+
+# Voltage across R2 (and C)
+V_R2 = I_total * R2
+
+print(f"Total resistance: {R_total/1000:.1f} kΩ")
+print(f"Steady-state current: {I_total*1000:.2f} mA")
+print(f"Voltage across R₂ (= V_C): {V_R2:.1f} V")</code>
+                                    </div>
+                                    <div class="tool-call-result">Total resistance: 6.0 kΩ
+Steady-state current: 2.00 mA
+Voltage across R₂ (= V_C): 8.0 V</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">3</div>
+                                <div class="step-line"></div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Time Constant</div>
+                                <div class="step-text">
+                                    For the time constant, we need the Thévenin equivalent resistance seen by the capacitor:
+                                </div>
+                                <div class="math-display">
+                                    $R_{th} = R_1 \parallel R_2 = \frac{R_1 \cdot R_2}{R_1 + R_2}$
+                                </div>
+                                <div class="tool-call tool-call--circuits">
+                                    <div class="tool-call-header">
+                                        <span class="tool-badge tool-badge--circuits">Circuits</span>
+                                        <span class="tool-call-name">time_constant</span>
+                                    </div>
+                                    <div class="tool-call-body">
+                                        <code class="code-block"># Thévenin resistance seen by capacitor
+# (voltage source shorted → R1 || R2)
+R1 = 2000  # Ω
+R2 = 4000  # Ω
+C = 10e-6  # F
+
+R_th = (R1 * R2) / (R1 + R2)
+tau = R_th * C
+
+print(f"Thévenin resistance: {R_th:.0f} Ω = {R_th/1000:.2f} kΩ")
+print(f"Time constant τ = RC: {tau*1000:.2f} ms")
+print(f"5τ (99% settled): {5*tau*1000:.1f} ms")</code>
+                                    </div>
+                                    <div class="tool-call-result">Thévenin resistance: 1333 Ω = 1.33 kΩ
+Time constant τ = RC: 13.33 ms
+5τ (99% settled): 66.7 ms</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-indicator">
+                                <div class="step-number">4</div>
+                            </div>
+                            <div class="step-content">
+                                <div class="step-label">Verify</div>
+                                <div class="step-text" style="color: var(--accent-primary);">
+                                    &#10003; KVL verified: V<sub>R1</sub> + V<sub>R2</sub> = 4V + 8V = 12V = V<sub>source</sub>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="final-answer">
+                    <div class="final-answer-label">
+                        <span>&#10003;</span> Answer
+                    </div>
+                    <div class="final-answer-text">
+                        <p><strong>Steady-State Results:</strong></p>
+                        <table class="eng-table" style="margin: 0.5rem 0;">
+                            <tr>
+                                <td>Total current</td>
+                                <td><span class="unit-highlight">2.00 mA</span></td>
+                            </tr>
+                            <tr>
+                                <td>Capacitor voltage</td>
+                                <td><span class="unit-highlight">8.0 V</span></td>
+                            </tr>
+                        </table>
+
+                        <p style="margin-top: 1rem;"><strong>Transient Response:</strong></p>
+                        <div class="answer-box">
+                            Time constant τ = <span class="unit-highlight">13.33 ms</span>
+                        </div>
+
+                        <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                            <strong>Interpretation:</strong> When the circuit is first energized, the capacitor charges through R<sub>th</sub> = R₁∥R₂ = 1.33 kΩ. After 5τ ≈ 67 ms, the capacitor reaches 99% of its final voltage (8V).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-container">
+                <textarea class="input-box" placeholder="Ask about statics, circuits, thermodynamics, fluid mechanics, control systems..." rows="1"></textarea>
+                <div class="input-actions">
+                    <button class="send-btn">Send &#8593;</button>
+                </div>
+            </div>
+            <div class="input-hint">
+                Supports structural analysis, circuit simulation, and engineering calculations
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize KaTeX
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+        });
+
+        // Auto-resize textarea
+        const textarea = document.querySelector('.input-box');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+    </script>
+</body>
+</html>

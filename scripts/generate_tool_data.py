@@ -32,6 +32,16 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# Load .env file if it exists
+env_path = project_root / ".env"
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, value = line.split("=", 1)
+                os.environ[key] = value
+
 
 # =============================================================================
 # Tool Definitions (matching the enriched tools)
@@ -44,7 +54,7 @@ TOOL_DEFINITIONS = {
             "simplify",        # simplify expressions
             "solve",           # solve equations
             "differentiate",   # d/dx
-            "integrate",       # ∫ (definite and indefinite)
+            "integrate",       # (definite and indefinite)
             "evaluate",        # substitute values
             "limit",           # compute limits (including at infinity)
             "series",          # Taylor/Maclaurin series
@@ -56,6 +66,64 @@ TOOL_DEFINITIONS = {
             {"operation": "differentiate", "expression": "x**3 + 2*x", "variable": "x"},
             {"operation": "limit", "expression": "sin(x)/x", "variable": "x", "point": "0"},
             {"operation": "matrix", "matrix": "[[1,2],[3,4]]", "values": "determinant"},
+        ],
+    },
+    # V0.2 Epistemic Tools - Error Class Elimination
+    "state_machine": {
+        "description": "Discrete state transitions and resource simulations - eliminates 'what happens next' hallucinations",
+        "operations": [
+            "what_if",          # simulate sequence of actions
+            "available_actions", # get valid actions from current state
+            "resource_sim",     # simulate resource flows
+        ],
+        "examples": [
+            {"operation": "what_if", "initial_state": {"name": "idle", "properties": {"count": 0}},
+             "transitions": [{"name": "start", "from": "idle", "to": "running"}], "actions": ["start"]},
+            {"operation": "resource_sim", "initial_resources": {"gold": 100},
+             "resource_actions": [{"type": "remove", "resource": "gold", "amount": 30}]},
+        ],
+    },
+    "constraint": {
+        "description": "SAT/UNSAT feasibility checking - prevents proposing impossible plans",
+        "operations": [
+            "check_feasibility", # check if constraints can be satisfied
+            "check_assignment",  # validate specific assignment
+            "check_schedule",    # check scheduling feasibility
+        ],
+        "examples": [
+            {"operation": "check_feasibility",
+             "variables": {"x": {"range": [1, 10]}, "y": {"range": [1, 10]}},
+             "constraints": [{"type": "less_than", "var1": "x", "var2": "y"}]},
+            {"operation": "check_schedule",
+             "tasks": [{"name": "A", "duration": 5, "earliest_start": 0, "deadline": 10}]},
+        ],
+    },
+    "enumerate": {
+        "description": "Bounded exhaustive search - eliminates 'seems unlikely' without verification",
+        "operations": [
+            "search",  # find items satisfying condition
+            "count",   # count search space size
+        ],
+        "examples": [
+            {"operation": "search", "space_type": "integers", "low": 1, "high": 20,
+             "condition_type": "prime", "find_all": True},
+            {"operation": "count", "space_type": "combinations", "items": [1,2,3,4,5], "size": 3},
+        ],
+    },
+    "counterfactual": {
+        "description": "Sensitivity analysis - reports 'robust to X, sensitive to Y'",
+        "operations": [
+            "sensitivity",  # analyze parameter sensitivity
+            "scenarios",    # compare named scenarios
+            "boundary",     # find threshold values
+            "what_if",      # evaluate expressions with varied inputs
+        ],
+        "examples": [
+            {"operation": "sensitivity", "analysis_type": "breakeven",
+             "base_inputs": {"revenue_per_unit": 100, "cost_per_unit": 60, "fixed_costs": 10000, "units": 300}},
+            {"operation": "scenarios", "analysis_type": "investment",
+             "scenarios": {"conservative": {"initial": 1000, "rate": 0.05, "years": 10},
+                          "aggressive": {"initial": 1000, "rate": 0.12, "years": 10}}},
         ],
     },
     "execute_python": {
@@ -135,6 +203,11 @@ class Domain(Enum):
     LOGIC = "logic"
     NUMERICAL = "numerical"
     MULTI_TOOL = "multi_tool"
+    # V0.2 Epistemic domains - Error class elimination
+    STATE_REASONING = "state_reasoning"
+    CONSTRAINT_REASONING = "constraint_reasoning"
+    EXHAUSTIVE_REASONING = "exhaustive_reasoning"
+    SENSITIVITY_ANALYSIS = "sensitivity_analysis"
     # Meta-cognitive domains
     FAILURE_RECOGNITION = "failure_recognition"
     CLARIFICATION = "clarification"
@@ -538,6 +611,168 @@ PROBLEM_TEMPLATES = {
         },
     ],
     # ==========================================================================
+    # V0.2 EPISTEMIC TOOLS - Error Class Elimination
+    # ==========================================================================
+    Domain.STATE_REASONING: [
+        # State machine - "What happens next" problems
+        {
+            "template": "A traffic light starts at {state}. After {n} cycles (green->yellow->red->green), what state is it in?",
+            "tool": "state_machine",
+            "operation": "what_if",
+            "vars": {"state": ["green", "red", "yellow"], "n": ["5", "7", "12", "20"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "A vending machine has {amount} items. If {sold} are sold and {restocked} are restocked, how many remain?",
+            "tool": "state_machine",
+            "operation": "resource_sim",
+            "vars": {"amount": ["50", "100", "25"], "sold": ["15", "30", "10"], "restocked": ["20", "0", "5"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "A game character starts with {hp} HP, {gold} gold. They take {damage} damage, collect {loot} gold, and use a potion healing {heal} HP. What are their final stats?",
+            "tool": "state_machine",
+            "operation": "resource_sim",
+            "vars": {"hp": ["100", "50", "80"], "gold": ["0", "50", "100"], "damage": ["30", "20", "45"], "loot": ["25", "10", "50"], "heal": ["20", "15", "30"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "A door starts {state}. The sequence of actions is: {actions}. What is the final state?",
+            "tool": "state_machine",
+            "operation": "what_if",
+            "vars": {"state": ["closed", "open", "locked"], "actions": ["open,close,lock", "unlock,open,close", "open,close,open,close"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "A factory machine can be: idle, running, or broken. It starts {state}. After {actions}, what state is it in?",
+            "tool": "state_machine",
+            "operation": "what_if",
+            "vars": {"state": ["idle", "running"], "actions": ["start,break,repair,start", "start,stop,start,break", "start,stop"]},
+            "difficulty": "medium",
+        },
+    ],
+    Domain.CONSTRAINT_REASONING: [
+        # Constraint satisfaction - "Is this plan possible?"
+        {
+            "template": "Can you schedule {n} tasks where each takes {duration} hours in a {hours}-hour day, if they can't overlap?",
+            "tool": "constraint",
+            "operation": "check_schedule",
+            "vars": {"n": ["3", "4", "5"], "duration": ["2", "3", "4"], "hours": ["8", "10", "12"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Is there an integer between {low} and {high} that is divisible by both {a} and {b}?",
+            "tool": "constraint",
+            "operation": "check_feasibility",
+            "vars": {"low": ["1", "10", "100"], "high": ["50", "100", "200"], "a": ["3", "7", "11"], "b": ["5", "9", "13"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Three friends must sit in a row. {c1}. {c2}. Is this arrangement possible?",
+            "tool": "constraint",
+            "operation": "check_feasibility",
+            "vars": {"c1": ["Alice must sit next to Bob", "Alice cannot sit next to Carol", "Bob must be on the left"], "c2": ["Carol must be in the middle", "Bob cannot be on the end", "Alice must be on the right"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "A project has tasks A, B, C. A takes {a}h, B takes {b}h, C takes {c}h. B requires A to finish first. C requires B. Can it be done in {deadline} hours?",
+            "tool": "constraint",
+            "operation": "check_schedule",
+            "vars": {"a": ["2", "3", "4"], "b": ["3", "2", "5"], "c": ["2", "4", "3"], "deadline": ["6", "8", "10"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Can 4 people share {items} items such that everyone gets at least {min} and no one gets more than {max}?",
+            "tool": "constraint",
+            "operation": "check_feasibility",
+            "vars": {"items": ["12", "20", "8"], "min": ["2", "3", "1"], "max": ["5", "7", "3"]},
+            "difficulty": "easy",
+        },
+    ],
+    Domain.EXHAUSTIVE_REASONING: [
+        # Enumeration - "Are there any?" / "How many?" problems
+        {
+            "template": "How many prime numbers are there between {low} and {high}?",
+            "tool": "enumerate",
+            "operation": "search",
+            "vars": {"low": ["1", "50", "100"], "high": ["50", "100", "150"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "How many ways can you choose {k} items from a set of {n}?",
+            "tool": "enumerate",
+            "operation": "count",
+            "vars": {"k": ["2", "3", "4"], "n": ["5", "6", "8"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Are there any perfect squares between {low} and {high} that are also divisible by {d}?",
+            "tool": "enumerate",
+            "operation": "search",
+            "vars": {"low": ["1", "100", "50"], "high": ["100", "500", "200"], "d": ["3", "7", "5"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "List all pairs (a,b) where a and b are single digits and a + b = {sum}",
+            "tool": "enumerate",
+            "operation": "search",
+            "vars": {"sum": ["10", "12", "15", "8"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "How many 3-digit numbers have all distinct digits?",
+            "tool": "enumerate",
+            "operation": "count",
+            "vars": {},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Find all integers n where 1 <= n <= {max} and n^2 ends in {digit}",
+            "tool": "enumerate",
+            "operation": "search",
+            "vars": {"max": ["50", "100", "30"], "digit": ["1", "4", "9", "6"]},
+            "difficulty": "medium",
+        },
+    ],
+    Domain.SENSITIVITY_ANALYSIS: [
+        # Counterfactual - "How robust is this conclusion?"
+        {
+            "template": "A business sells widgets for ${price} each, costs ${cost} per unit, fixed costs ${fixed}. At {units} units sold, is it profitable? How sensitive is this to price changes?",
+            "tool": "counterfactual",
+            "operation": "sensitivity",
+            "vars": {"price": ["100", "50", "200"], "cost": ["60", "30", "120"], "fixed": ["10000", "5000", "20000"], "units": ["300", "500", "200"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "An investment of ${initial} at {rate}% annual return for {years} years. Compare conservative ({low_rate}%) vs aggressive ({high_rate}%) strategies.",
+            "tool": "counterfactual",
+            "operation": "scenarios",
+            "vars": {"initial": ["1000", "10000", "5000"], "rate": ["7", "5", "10"], "years": ["10", "20", "5"], "low_rate": ["4", "3", "5"], "high_rate": ["12", "15", "10"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "A decision: Option A gives ${a_val} with {a_prob}% probability. Option B gives ${b_val} with {b_prob}% probability. Which is better, and at what probability would you switch?",
+            "tool": "counterfactual",
+            "operation": "boundary",
+            "vars": {"a_val": ["1000", "500", "2000"], "a_prob": ["80", "60", "90"], "b_val": ["2000", "1500", "5000"], "b_prob": ["40", "50", "30"]},
+            "difficulty": "hard",
+        },
+        {
+            "template": "If production costs increase by {pct}%, at what price point does a ${price} product become unprofitable (margin < {min_margin}%)?",
+            "tool": "counterfactual",
+            "operation": "boundary",
+            "vars": {"pct": ["10", "20", "15"], "price": ["100", "50", "200"], "min_margin": ["10", "15", "20"]},
+            "difficulty": "hard",
+        },
+        {
+            "template": "A factory can produce {units} units. Best case: ${best} profit/unit. Worst case: ${worst} profit/unit. What's the range of outcomes?",
+            "tool": "counterfactual",
+            "operation": "scenarios",
+            "vars": {"units": ["1000", "500", "2000"], "best": ["50", "100", "30"], "worst": ["10", "20", "5"]},
+            "difficulty": "easy",
+        },
+    ],
+    # ==========================================================================
     # FAILURE RECOGNITION - Model learns to identify unsolvable/error cases
     # ==========================================================================
     Domain.FAILURE_RECOGNITION: [
@@ -777,6 +1012,7 @@ PROBLEM_TEMPLATES = {
 
 # Domain distribution for generation
 DOMAIN_DISTRIBUTION = {
+    # Core math/science domains
     Domain.CALCULUS: 2000,
     Domain.ALGEBRA: 1500,
     Domain.LINEAR_ALGEBRA: 500,
@@ -787,9 +1023,14 @@ DOMAIN_DISTRIBUTION = {
     Domain.LOGIC: 1000,
     Domain.NUMERICAL: 1500,
     Domain.MULTI_TOOL: 1000,
+    # V0.2 Epistemic tools - Error class elimination
+    Domain.STATE_REASONING: 800,        # "What happens next" - state machines
+    Domain.CONSTRAINT_REASONING: 800,   # "Is this plan possible" - SAT/UNSAT
+    Domain.EXHAUSTIVE_REASONING: 800,   # "Are there any" - enumeration
+    Domain.SENSITIVITY_ANALYSIS: 800,   # "How robust" - counterfactuals
     # Meta-cognitive - critical for robust behavior
-    Domain.FAILURE_RECOGNITION: 1000,  # Learn to recognize unsolvable problems
-    Domain.CLARIFICATION: 1000,        # Learn to ask for missing info
+    Domain.FAILURE_RECOGNITION: 1000,   # Learn to recognize unsolvable problems
+    Domain.CLARIFICATION: 1000,         # Learn to ask for missing info
 }
 
 
@@ -884,6 +1125,26 @@ Available tools:
 5. physics
    Operations: unit_convert, kinematics, ideal_gas, waves, constant, energy, electricity, optics, projectile, shm
    Args vary by operation (see examples)
+
+6. state_machine (V0.2 - Epistemic)
+   Eliminates "what happens next" hallucinations by simulating discrete state transitions
+   Operations: what_if (simulate actions), available_actions, resource_sim
+   Args: initial_state, transitions, actions, initial_resources, resource_actions
+
+7. constraint (V0.2 - Epistemic)
+   Prevents proposing impossible plans by checking SAT/UNSAT
+   Operations: check_feasibility, check_assignment, check_schedule
+   Args: variables (with ranges), constraints, assignment, tasks
+
+8. enumerate (V0.2 - Epistemic)
+   Eliminates "seems unlikely" without verification via bounded exhaustive search
+   Operations: search (find satisfying items), count (count search space)
+   Args: space_type, low, high, condition_type, find_all, items, size
+
+9. counterfactual (V0.2 - Epistemic)
+   Sensitivity analysis - reports "robust to X, sensitive to Y, threshold at Z"
+   Operations: sensitivity, scenarios, boundary, what_if
+   Args: analysis_type, base_inputs, vary_params, scenarios, param, low, high, target
 
 Guidelines:
 - Use 3-6 reasoning steps for most problems
@@ -1363,7 +1624,7 @@ def generate_batch(
                 stats.by_domain[domain.value] = stats.by_domain.get(domain.value, 0) + 1
                 generated += 1
 
-                print(f"  [{generated}/{domain_count}] ✓ {problem[:60]}...")
+                print(f"  [{generated}/{domain_count}] OK {problem[:60]}...")
 
                 # Rate limiting
                 time.sleep(0.5)

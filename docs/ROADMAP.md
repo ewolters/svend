@@ -1,223 +1,282 @@
 # Svend Roadmap
 
-## Current State (January 2025)
+## Current State (January 2026)
+
+### Training In Progress
+- Language model pretraining: **48% complete** (48K/100K steps)
+- Loss: 3.6993, PPL: 40.4
+- ETA: ~5 hours remaining
 
 ### Infrastructure Complete
 
 | Component | Status | Location |
 |-----------|--------|----------|
 | **Transformer Architecture** | Done | `src/models/` |
-| - RoPE, GQA, SwiGLU, RMSNorm | Done | `layers.py`, `transformer.py` |
-| - Model configs (1B-13B) | Done | `config.py` |
-| **Tool System** | Done | `src/tools/` |
-| - Symbolic math (10 ops) | Done | `math_engine.py` |
-| - Physics (10 ops) | Done | `physics.py` |
-| - Chemistry (10 ops) | Done | `chemistry.py` |
-| - Logic solver (Z3) | Done | `math_engine.py` |
-| - Code sandbox | Done | `code_sandbox.py` |
-| - Tool orchestrator | Done | `orchestrator.py`, `specialists.py` |
-| - Meta-cognitive tokens | Done | `registry.py` |
+| **Tool System** | Done | `src/tools/` (21 tools) |
 | **Training Pipeline** | Done | `src/training/`, `src/pipeline/` |
-| - Trainer with checkpointing | Done | `trainer.py` |
-| - Distillation support | Done | `distillation.py` |
-| - Pipeline runner | Done | `runner.py` |
 | **Data Pipeline** | Done | `src/data/` |
-| - Dataset loaders (HF) | Done | `datasets.py` |
-| - Tokenizer | Done | `tokenizer.py` |
-| - Tool trace formatter | Done | `datasets.py` |
-| - Failure/clarification formatter | Done | `datasets.py` |
 | **Evaluation** | Done | `src/evaluation/` |
-| - Benchmark harness | Done | `harness.py`, `benchmarks.py` |
-| - Metrics | Done | `metrics.py` |
 | **Safety** | Done | `src/safety/` |
-| - Classifier | Done | `classifier.py` |
-| - Filters & rules | Done | `filters.py`, `rules.py` |
-| - Safety gate | Done | `gate.py` |
 | **Server** | Done | `src/server/` |
-| - FastAPI (OpenAI-compatible) | Done | `api.py` |
-| - Inference engine | Done | `inference.py` |
-| **Data Generation** | Done | `scripts/` |
-| - Tool trace generator | Done | `generate_tool_data.py` |
-| - Failure recognition traces | Done | `generate_tool_data.py` |
-| - Clarification request traces | Done | `generate_tool_data.py` |
-| **Testing** | Done | `tests/` |
-| - Tool unit tests (29 tests) | Done | `test_tools.py` |
-| - Smoke test script | Done | `scripts/smoke_test.py` |
-
-### What's Actually Missing
-
-1. **Training data** - Need to generate it
-2. **Trained models** - Need to train them
-3. **End-to-end testing** - Need to validate the full pipeline works
-4. **Deployment config** - Modal/RunPod setup
 
 ---
 
-## Immediate Next Steps (No Colab Required)
+## Tool Architecture
 
-### 1. Test Suite
-Create proper tests for the tool system to ensure everything works before training.
+### The Distinction: Tools vs Specialists
 
-```
-tests/
-    test_tools.py         # Unit tests for all tools
-    test_pipeline.py      # Integration tests
-    test_safety.py        # Safety system tests
-```
+**Tools** = Verified operations that eliminate error classes
+- Execute deterministic computations
+- Return provably correct results OR explicit uncertainty
+- Model should NEVER improvise what a tool can compute
 
-### 2. Requirements Validation
-Ensure all dependencies are documented and installable.
-
-```
-requirements.txt          # Core deps
-requirements-dev.txt      # Testing deps
-requirements-colab.txt    # Colab-specific deps
-```
-
-### 3. Local Smoke Test Script
-A script that validates the entire pipeline end-to-end with tiny models.
-
-```python
-# scripts/smoke_test.py
-# - Load 1M parameter model
-# - Process one example through full pipeline
-# - Execute tools
-# - Verify output format
-```
-
-### 4. Configuration Consolidation
-Single source of truth for all configs.
-
-```
-configs/
-    training/
-        dev.yaml          # Tiny model for testing
-        7b.yaml           # Production 7B
-        13b.yaml          # Production 13B
-    serving/
-        local.yaml        # Local inference
-        modal.yaml        # Modal deployment
-        runpod.yaml       # RunPod deployment
-```
+**Specialists** = Epistemic scaffolding for domain reasoning
+- Encode how experts think about problems
+- Provide ontologies, frameworks, and patterns
+- Structure the reasoning process, not just compute
 
 ---
 
-## Pre-Training Checklist
+## Current Tool Inventory (21 tools)
 
-Before spending money on Colab/API calls:
+### Tier 1: Core Reasoning (Verified Computation)
 
-- [ ] `py scripts/test_pipeline.py` passes
-- [ ] All tools execute correctly (unit tests)
-- [ ] Tokenizer handles tool tokens
-- [ ] Dataset loaders work with HF datasets
-- [ ] Safety classifier loads and runs
-- [ ] Checkpoint save/load works
-- [ ] WandB integration works (or can be disabled)
+| Tool | Purpose | Operations |
+|------|---------|------------|
+| `calculator` | Exact arithmetic | expressions, arbitrary precision, fractions |
+| `execute_python` | Sandboxed code | safe execution with restricted imports |
+| `symbolic_math` | SymPy algebra | simplify, solve, differentiate, integrate |
+| `logic_solver` | Z3 SAT/SMT | satisfiability, proofs, constraints |
+| `unit_converter` | Dimensional analysis | 170+ units, 16 categories |
+
+### Tier 2: Domain Computation
+
+| Tool | Purpose | Operations |
+|------|---------|------------|
+| `combinatorics` | Counting | P(n,r), C(n,r), Stirling, Bell, Catalan, partitions |
+| `graph` | Graph algorithms | BFS, DFS, Dijkstra, MST, cycles, topological sort |
+| `geometry` | Coordinate geometry | points, lines, circles, triangles, polygons |
+| `sequence` | Pattern recognition | arithmetic, geometric, polynomial, Fibonacci |
+| `finance` | Financial math | TVM, NPV/IRR, bonds, amortization |
+| `numerical` | NumPy/SciPy | linear algebra, optimization, ODEs |
+| `statistics` | Statistical analysis | distributions, tests, regression |
+| `chemistry` | Chemistry | molecular weight, stoichiometry, pH |
+| `physics` | Physics | kinematics, thermodynamics, circuits |
+| `plotter` | Visualization | function plots, scatter, histograms |
+
+### Tier 3: Epistemic Honesty (V0.2 - Error Class Elimination)
+
+These tools delete entire categories of bullshit:
+
+| Tool | Error Class Eliminated | Key Output |
+|------|----------------------|------------|
+| `state_machine` | "What happens next" hallucinations | Simulated state traces |
+| `constraint` | "Here's a plan" for impossible plans | SAT/UNSAT + conflicts |
+| `enumerate` | "Seems unlikely" without checking | VERIFIED: ALL/NONE/count |
+| `counterfactual` | Single-story thinking | ROBUST to X, SENSITIVE to Y |
+
+### Tier 4: External Data (API-dependent)
+
+| Tool | Purpose | Status |
+|------|---------|--------|
+| `wolfram` | WolframAlpha queries | Stub (needs API key) |
+| `pubchem` | Chemical compound data | Stub |
+| `web_search` | Current information | Stub |
+
+### Tier 5: Utilities
+
+| Tool | Purpose |
+|------|---------|
+| `latex_render` | Mathematical typesetting |
 
 ---
 
-## Training Plan (When Ready)
+## Tooling Roadmap
 
-### Phase 1: Generate Data (~$60)
+### Phase 1: Complete (V0.1 + V0.2)
+- [x] Core reasoning tools
+- [x] Domain computation tools
+- [x] Epistemic honesty tools (state_machine, constraint, enumerate, counterfactual)
+- [x] ToolStatus epistemic values (CANNOT_VERIFY, UNCERTAIN, PARTIAL)
+
+### Phase 2: Semantic Type System (V0.3)
+Extend unit_converter with semantic dimensional analysis:
+
+```
+Quantity Types:
+- PROBABILITY vs ODDS vs LIKELIHOOD
+- RATE vs TOTAL vs RATIO
+- MONEY vs MONEY_PER_TIME vs MONEY_PER_UNIT
+- DURATION vs TIMESTAMP vs FREQUENCY
+
+Operations:
+- Type-check calculations
+- Refuse invalid operations (probability + odds)
+- Convert between related types
+```
+
+### Phase 3: Domain Specialists (V1.0)
+Epistemic scaffolding for professional domains:
+
+| Specialist | What It Encodes |
+|------------|-----------------|
+| **Systems Engineering** | Requirements decomposition, interface matrices, V-model, FMEA |
+| **Manufacturing** | Process capability (Cp/Cpk), tolerance stackup, OEE, lean metrics |
+| **Controls** | Transfer functions, stability margins, Bode/Nyquist, PID tuning |
+| **Reliability** | Weibull analysis, MTBF, fault trees, redundancy |
+| **Project Management** | Critical path, resource leveling, earned value |
+
+Each specialist provides:
+1. **Ontology**: Domain vocabulary and relationships
+2. **Templates**: Standard analyses and frameworks
+3. **Validation**: "Is this design sane?" checks
+4. **Patterns**: How experts approach problems
+
+### Phase 4: Meta-Reasoning (V1.1)
+- **Epistemic Tracking**: GIVEN/DERIVED/VERIFIED/ASSUMED tags
+- **Confidence Propagation**: Track how uncertainty flows through reasoning
+- **Refusal as First-Class**: Deterministic "Cannot verify. Here's why."
+
+---
+
+## Error Classes and Their Tools
+
+The GPT framework for what we're building:
+
+| Error Class | Tool Solution | Status |
+|-------------|---------------|--------|
+| Floating point embarrassment | `calculator` | Done |
+| Symbolic algebra mistakes | `symbolic_math` | Done |
+| Logic errors | `logic_solver` | Done |
+| State/temporal confusion | `state_machine` | Done |
+| Impossible plan proposals | `constraint` | Done |
+| "Seems unlikely" without proof | `enumerate` | Done |
+| Single-story thinking | `counterfactual` | Done |
+| Dimensional nonsense | `unit_converter` + V0.3 | Partial |
+| Confident about assumptions | Epistemic tracking | V1.1 |
+| Rhetorical certainty | Refusal as outcome | V1.1 |
+
+---
+
+## Training Plan
+
+### Phase 1: Language Model Pretraining (CURRENT)
+- 374M parameters, 100K steps
+- Learning basic language modeling
+- Status: ~50% complete, PPL ~39
+
+### Phase 2: Reasoning Specialist Training
+**Scale Options (all fit A100 80GB):**
+| Model | Params | Training Memory | Notes |
+|-------|--------|-----------------|-------|
+| reasoning-500m | 336M | 9 GB | Fast iteration |
+| reasoning-1b | 803M | 16 GB | Quick experiments |
+| **reasoning-1.5b** | 1.37B | 27 GB | Sweet spot |
+| **reasoning-2b** | 1.73B | 33 GB | Recommended |
+| reasoning-3b | 2.37B | 45 GB | Maximum capability |
+
+**Training Data Generation:**
 ```bash
-py scripts/generate_tool_data.py --num-examples 12000 --output data/tool_traces.jsonl
+python scripts/generate_tool_data.py --num-examples 15000 --output data/tool_traces.jsonl
 ```
+Distribution: ~15K examples across 16 domains including V0.2 epistemic tools
 
-### Phase 2: Safety Classifier (4h Colab)
-- Train lightweight safety classifier
-- Validate on red-team examples
+**Fine-tuning Process:**
+1. Generate synthetic tool-calling data (15K examples)
+2. Fine-tune reasoning specialist on tool traces
+3. Evaluate on GSM8K, tool correctness, epistemic honesty
 
-### Phase 3: Base Reasoning (24h Colab)
-- Fine-tune Qwen2.5-14B or Mistral-7B
-- General reasoning without tools
+### Phase 3: Verifier Training
+- 250M-500M parameter verifier model
+- Trained on (question, reasoning, correctness) tuples
+- Used for self-verification during inference
 
-### Phase 4: Tool Integration (18h Colab)
-- Continue from Phase 3
-- Add tool-calling capability
-
-### Phase 5: Verifier (24h Colab)
-- Train 3B verifier model
-- Learns to check reasoning chains
-
----
-
-## Infrastructure Gaps to Fill
-
-### Priority 1: Testing
-| Task | Effort | Value |
-|------|--------|-------|
-| Unit tests for tools | 2h | High - catches bugs before training |
-| Integration test | 1h | High - validates full pipeline |
-| Smoke test script | 1h | High - quick validation |
-
-### Priority 2: Configuration
-| Task | Effort | Value |
-|------|--------|-------|
-| YAML configs for training | 1h | Medium - cleaner than CLI args |
-| Environment setup docs | 30m | Medium - reproducibility |
-
-### Priority 3: Documentation
-| Task | Effort | Value |
-|------|--------|-------|
-| README update | 30m | Low - already have CLAUDE.md |
-| Quick start guide | 1h | Medium - helps new contributors |
-
-### Priority 4: Deployment
-| Task | Effort | Value |
-|------|--------|-------|
-| Modal deployment script | 2h | Defer - need trained model first |
-| Docker setup | 2h | Defer - need trained model first |
-
----
-
-## What We Can Build Tonight (Low Risk)
-
-1. **Test suite** - Pure Python, no dependencies on external services
-2. **Smoke test script** - Validates infrastructure without training
-3. **Requirements files** - Organize dependencies
-4. **Config consolidation** - YAML files for different scenarios
-
----
-
-## Decision Points
-
-### Model Strategy
-**Question**: Fine-tune existing model vs train from scratch?
-
-| Option | Pros | Cons |
-|--------|------|------|
-| Fine-tune Qwen2.5-14B | Strong base, proven | Less control |
-| Fine-tune Mistral-7B | Apache 2.0, efficient | Smaller capacity |
-| Train from scratch | Full control | Much more compute |
-
-**Current recommendation**: Fine-tune, switch to from-scratch if licensing becomes an issue.
-
-### Hosting Strategy
-**Question**: Where to deploy?
-
-| Provider | Cost | Scaling |
-|----------|------|---------|
-| Modal | Pay-per-second | Auto |
-| RunPod | Per-hour | Manual |
-| Lambda Labs | Reserved | None |
-
-**Current recommendation**: Modal for initial launch (simplest), migrate to RunPod if traffic justifies.
+### Phase 4: Specialist Integration
+1. Add domain specialist prompts (systems engineering, manufacturing, etc.)
+2. Fine-tune on domain-specific reasoning
+3. Evaluate on professional benchmarks
 
 ---
 
 ## Success Metrics
 
-Before launch:
-- [ ] GSM8K > 50% accuracy
-- [ ] Tool calls correct > 90%
-- [ ] Safety refusal correct > 95%
-- [ ] Latency < 5s p90
-- [ ] Fits on A100-40GB
+| Metric | Target | Current |
+|--------|--------|---------|
+| GSM8K accuracy | >50% | - |
+| Tool call correctness | >90% | - |
+| Safety refusal correctness | >95% | - |
+| Latency p90 | <5s | - |
+| Epistemic honesty (new) | Model uses CANNOT_VERIFY appropriately | - |
 
 ---
 
+## File Structure
+
+```
+src/tools/
+├── __init__.py           # Registry factory
+├── registry.py           # Tool, ToolResult, ToolStatus
+├── executor.py           # Execution management
+├── orchestrator.py       # Multi-step reasoning
+│
+├── # Tier 1: Core
+├── calculator.py
+├── code_sandbox.py
+├── math_engine.py        # SymPy + Z3
+├── unit_converter.py
+│
+├── # Tier 2: Domain
+├── graph_tools.py        # combinatorics + graph
+├── geometry.py
+├── sequence_analyzer.py
+├── finance.py
+├── numerical.py
+├── statistics_tool.py
+├── chemistry.py
+├── physics.py
+├── plotter.py
+│
+├── # Tier 3: Epistemic
+├── state_machine.py
+├── constraint_solver.py
+├── enumerator.py
+├── counterfactual.py
+│
+├── # Tier 4: External
+├── external_apis.py
+│
+└── # Tier 5: Utilities
+    └── latex_render.py
+```
+
+---
+
+## Hardware & Resources
+
+| Resource | Spec | Usage |
+|----------|------|-------|
+| GPU | A100 80GB | Training |
+| Storage | 300GB | Checkpoints |
+| Budget | $500/30 days | Compute costs |
+
 ## Notes
 
-- Landing page live at svend.ai (Google Forms signup)
+- Landing page: svend.ai
 - Target launch: May 2026
-- Budget: $500 over 30 days of training
+- Core principle: **Make bullshit structurally impossible, domain by domain**
+
+## Quick Commands
+
+```bash
+# Generate training data
+python scripts/generate_tool_data.py --num-examples 15000 --output data/tool_traces.jsonl
+
+# Test V0.2 epistemic tools
+python scripts/test_v02_tools.py
+
+# Test V0.1 domain tools
+python scripts/test_new_tools.py
+
+# View model configs
+python -c "from src.models.config import print_config_comparison; print_config_comparison()"
+```

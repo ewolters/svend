@@ -1,0 +1,75 @@
+{
+  "stage": "language_model",
+  "checkpoint_path": "checkpoints\\language-500m-20260112\\final-language-model.pt",
+  "timestamp": "2026-01-12T08:34:17.164454",
+  "results": [
+    {
+      "name": "Perplexity",
+      "passed": false,
+      "score": 76.386437442517,
+      "threshold": 50.0,
+      "details": "Lower is better"
+    },
+    {
+      "name": "Completion Rate",
+      "passed": true,
+      "score": 1.0,
+      "threshold": 0.8,
+      "details": "8/8 successful"
+    },
+    {
+      "name": "Repetition Rate",
+      "passed": true,
+      "score": 0.0,
+      "threshold": 0.3,
+      "details": "0/8 repetitive (lower is better)"
+    },
+    {
+      "name": "Norwegian Score",
+      "passed": true,
+      "score": 0.7875,
+      "threshold": 0.4,
+      "details": "Communication directness (higher is better)"
+    }
+  ],
+  "overall_passed": false,
+  "recommendation": "REJECT \u2192 Failed: Perplexity. Retrain with more data/steps.",
+  "sample_outputs": [
+    {
+      "prompt": "The capital of France is",
+      "completion": "located in the heart of the French capital, Paris.\n\nHistory\n\nThe first mention of the city's name comes from the French name of the first inhabitants of the city.\n\nThe name of the city is derived from the name of",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "In 1969, humans first",
+      "completion": "saw the first human species known as the pterodactylidines, which were the most abundant groups of living organisms in the world.\n\nThe first human fossils of the pterodactylidines were discovered in a fossilised",
+      "norwegian_score": 0.91,
+      "success": true
+    },
+    {
+      "prompt": "The theory of relativity states that",
+      "completion": "the number of times the observer has been at a certain point in time has been small and has been small.\n\nThe theory of relativity is the theory of the universe that explains the history of evolution, and the theory of evolution itself.",
+      "norwegian_score": 0.75,
+      "success": true
+    },
+    {
+      "prompt": "Water boils at",
+      "completion": "the top of the hill.\n\n\"I don't know what's going to happen,\" the man with the black hat said. \"I want to get back to the race.\"\n\nIt was a safe, but not nearly impossible, race",
+      "norwegian_score": 0.91,
+      "success": true
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "completion": "the star.\n\n\"This is a remarkable moment in the history of our solar system,\" said Matthew Cottman, a planetary scientist at the University of Utah. \"The discovery of the star is one of the most significant discoveries we've ever",
+      "norwegian_score": 0.75,
+      "success": true
+    }
+  ],
+  "norwegian_analysis": {
+    "avg_score": 0.7875,
+    "theatrical_count": 0,
+    "preachy_count": 0,
+    "direct_count": 2
+  }
+}

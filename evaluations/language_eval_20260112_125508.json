@@ -1,0 +1,75 @@
+{
+  "stage": "language_model",
+  "checkpoint_path": "checkpoints/checkpoint-120000.pt",
+  "timestamp": "2026-01-12T12:55:08.452027",
+  "results": [
+    {
+      "name": "Perplexity",
+      "passed": false,
+      "score": 60.24485057497805,
+      "threshold": 50.0,
+      "details": "Lower is better"
+    },
+    {
+      "name": "Completion Rate",
+      "passed": true,
+      "score": 1.0,
+      "threshold": 0.8,
+      "details": "8/8 successful"
+    },
+    {
+      "name": "Repetition Rate",
+      "passed": true,
+      "score": 0.0,
+      "threshold": 0.3,
+      "details": "0/8 repetitive (lower is better)"
+    },
+    {
+      "name": "Norwegian Score",
+      "passed": true,
+      "score": 0.7525,
+      "threshold": 0.4,
+      "details": "Communication directness (higher is better)"
+    }
+  ],
+  "overall_passed": false,
+  "recommendation": "REJECT - Failed: Perplexity. Retrain with more data/steps.",
+  "sample_outputs": [
+    {
+      "prompt": "The capital of France is",
+      "completion": "a city of 7,764,000 inhabitants, and it is the fourth largest city in the world. It is the third largest city in the world with a population of 8,700,000,000.\n\nHistory \n\nThe",
+      "norwegian_score": 0.75,
+      "success": true
+    },
+    {
+      "prompt": "In 1969, humans first",
+      "completion": "introduced a new class of humans to the concept of the \"Bubble\" and the \"Bubble\" to be the first species of the species.\n\nThe first documented instance of Bubble was in the late 1970s, when",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "The theory of relativity states that",
+      "completion": "we can be certain that the time-dependent properties of an infinite number of states are not independent of the time-dependent properties of the entire system, but that the time-dependent properties of the finite number of states are not independent of the time-",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "Water boils at",
+      "completion": "the top of the hill, where the old road leads to the site of the old church. A large portion of the hill is covered with the same number of trees as the old church.\n\nThe first church on the hill was built in 16",
+      "norwegian_score": 0.83,
+      "success": true
+    },
+    {
+      "prompt": "The largest planet in our solar system is",
+      "completion": "the Sun. This is the largest planet in the solar system and the largest in the solar system.\n\nThis is a very complex system. You can imagine it. You have a planet orbiting an orbit that is much smaller than the Sun. And",
+      "norwegian_score": 0.65,
+      "success": true
+    }
+  ],
+  "norwegian_analysis": {
+    "avg_score": 0.7525,
+    "theatrical_count": 0,
+    "preachy_count": 0,
+    "direct_count": 0
+  }
+}

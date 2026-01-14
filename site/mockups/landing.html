@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Svend - Reasoning that shows its work</title>
+    <meta name="description" content="A reasoning assistant that thinks step-by-step and verifies its answers with tools. $5/month.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0f0a;
+            --bg-secondary: #0d120d;
+            --bg-tertiary: #121a12;
+            --bg-card: #0f150f;
+            --accent-primary: #4a9f6e;
+            --accent-primary-dim: rgba(74, 159, 110, 0.15);
+            --accent-primary-border: rgba(74, 159, 110, 0.3);
+            --accent-blue: #3a7f8f;
+            --accent-gold: #e8c547;
+            --text-primary: #e8efe8;
+            --text-secondary: #9aaa9a;
+            --text-dim: #5a6a5a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 15, 10, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .logo-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: var(--text-primary);
+            stroke-width: 20;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-btn {
+            padding: 0.6rem 1.25rem;
+            background: var(--accent-primary);
+            border: none;
+            border-radius: 4px;
+            color: var(--bg-primary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: #5ab87e;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            background: radial-gradient(ellipse at center top, rgba(74, 159, 110, 0.08) 0%, transparent 50%);
+        }
+
+        .hero-badge {
+            padding: 0.4rem 1rem;
+            background: var(--accent-primary-dim);
+            border: 1px solid var(--accent-primary-border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+        }
+
+        .hero-title strong {
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            padding: 1rem 2rem;
+            background: var(--accent-primary);
+            border: none;
+            border-radius: 6px;
+            color: var(--bg-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #5ab87e;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Demo Preview */
+        .demo-preview {
+            margin-top: 4rem;
+            max-width: 900px;
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-header {
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .demo-content {
+            padding: 2rem;
+        }
+
+        .demo-user {
+            text-align: right;
+            margin-bottom: 1.5rem;
+        }
+
+        .demo-user-bubble {
+            display: inline-block;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 12px 12px 4px 12px;
+            font-size: 0.95rem;
+        }
+
+        .demo-assistant {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .demo-step {
+            padding: 1rem;
+            background: rgba(74, 159, 110, 0.05);
+            border-left: 2px solid var(--accent-primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .demo-step-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-step-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .demo-answer {
+            padding: 1rem;
+            background: rgba(232, 197, 71, 0.08);
+            border: 1px solid rgba(232, 197, 71, 0.2);
+            border-radius: 8px;
+        }
+
+        .demo-answer-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-answer-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+        }
+
+        /* Features */
+        .features {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 4rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(74, 159, 110, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: var(--accent-primary-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Tools Section */
+        .tools {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+        }
+
+        .tools-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .tool-card {
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .tool-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .tool-badge--python { background: rgba(74, 159, 110, 0.15); color: #4a9f6e; }
+        .tool-badge--sympy { background: rgba(58, 127, 143, 0.15); color: #3a7f8f; }
+        .tool-badge--z3 { background: rgba(90, 79, 127, 0.15); color: #7a6f9f; }
+        .tool-badge--verify { background: rgba(232, 197, 71, 0.15); color: #e8c547; }
+
+        .tool-name {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Pricing */
+        .pricing {
+            padding: 6rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .pricing-card {
+            padding: 2.5rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent-primary-border);
+            background: linear-gradient(180deg, rgba(74, 159, 110, 0.05) 0%, var(--bg-card) 100%);
+        }
+
+        .pricing-popular {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.35rem 1rem;
+            background: var(--accent-primary);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--bg-primary);
+        }
+
+        .pricing-name {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-price {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-amount {
+            font-size: 3rem;
+            font-weight: 600;
+        }
+
+        .pricing-period {
+            font-size: 1rem;
+            color: var(--text-dim);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            padding: 0.6rem 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .pricing-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pricing-btn-primary {
+            background: var(--accent-primary);
+            border: none;
+            color: var(--bg-primary);
+        }
+
+        .pricing-btn-primary:hover {
+            background: #5ab87e;
+        }
+
+        .pricing-btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .pricing-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* FAQ */
+        .faq {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+        }
+
+        .faq-inner {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .faq-question {
+            padding: 1.5rem 0;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            color: var(--text-dim);
+        }
+
+        .faq-answer {
+            display: none;
+            padding-bottom: 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 4rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .footer-logo-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .footer-logo-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: var(--text-dim);
+            stroke-width: 20;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .footer-link:hover {
+            color: var(--text-primary);
+        }
+
+        /* Fireflies */
+        .fireflies {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .firefly {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: firefly-float 10s ease-in-out infinite;
+        }
+
+        .firefly::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: firefly-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes firefly-float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(30px, -20px) scale(1.1);
+            }
+            50% {
+                transform: translate(-20px, -40px) scale(0.9);
+            }
+            75% {
+                transform: translate(40px, -10px) scale(1.05);
+            }
+        }
+
+        @keyframes firefly-glow {
+            0%, 100% {
+                opacity: 0;
+                box-shadow: none;
+            }
+            15%, 85% {
+                opacity: 0;
+            }
+            30%, 70% {
+                opacity: 1;
+                box-shadow:
+                    0 0 6px 3px currentColor,
+                    0 0 12px 6px currentColor,
+                    0 0 20px 10px rgba(232, 197, 71, 0.3);
+            }
+            50% {
+                opacity: 1;
+                box-shadow:
+                    0 0 8px 4px currentColor,
+                    0 0 16px 8px currentColor,
+                    0 0 30px 15px rgba(232, 197, 71, 0.4);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .hero-title { font-size: 2.5rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+            .pricing-cards { grid-template-columns: 1fr; }
+            .footer-inner { flex-direction: column; gap: 2rem; text-align: center; }
+            .footer-links { flex-wrap: wrap; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fireflies background -->
+    <div class="fireflies" id="fireflies"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="logo">
+            <span class="logo-icon">
+                <svg viewBox="590 180 400 680" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m 810.34961,183.98438 c -8.00929,0.28308 -15.5701,3.48413 -22.48495,7.32376 -12.87788,7.1817 -24.40922,16.65459 -37.84868,22.84732 -4.31757,2.08674 -9.12821,2.91574 -13.3771,5.16756 -7.15857,3.4834 -13.4768,8.9205 -17.4074,15.89893 -4.63628,8.03202 -6.3024,17.46727 -6.06699,26.65644 0.0985,4.79617 0.75632,9.56171 1.64764,14.269 0.0476,1.43947 -0.58472,2.80552 -0.6551,4.24336 -0.75319,5.38879 0.11601,11.14811 3.19493,15.71841 3.74987,5.93489 9.53028,10.16542 15.27939,14.00871 10.15322,6.72796 21.26277,12.12274 30.43779,20.24424 0.72261,0.57357 1.06428,1.45781 1.01481,2.36706 0.25419,10.62114 0.26429,21.24817 0.15168,31.87217 -0.10997,9.76491 -0.23395,19.53062 -0.32352,29.29514 -0.2559,2.18138 -2.48681,3.93272 -4.67536,3.50098 -1.73761,-0.32579 -2.97662,-1.73361 -4.40792,-2.66331 -35.6616,-26.03244 -71.15984,-52.30412 -107.51397,-77.36576 -1.79592,-1.18526 -3.52006,-2.4953 -5.36053,-3.6031 -2.38777,-1.13215 -5.02429,-1.65761 -7.63204,-1.97563 -6.86268,-0.69881 -13.69347,1.24508 -19.88444,4.07709 -9.03352,4.05728 -17.18145,9.7518 -25.58752,14.92132 -3.36838,2.10086 -6.87005,4.24739 -10.41869,6.1631 -0.99569,0.52942 -2.22,1.17581 -3.31848,1.71944 -4.07079,2.03607 -8.31873,3.71411 -12.69879,4.95454 -4.02638,1.19323 -7.8786,3.2257 -10.74869,6.34031 -2.96251,3.09048 -4.72915,7.11427 -5.71781,11.23537 -1.55545,6.40335 -1.57897,13.05115 -1.41863,19.6009 0.26795,9.17433 1.23843,18.2732 1.00241,27.46227 0.0207,3.42545 -1.03941,6.75735 -0.90681,10.1895 0.001,5.08446 1.56132,10.25252 4.8747,14.1707 4.43736,5.53069 10.76398,9.06598 17.04291,12.11545 11.82295,5.71965 24.58514,9.32817 36.12161,15.66465 2.63761,1.56679 5.14743,3.4485 8.1405,4.29671 4.09389,1.33597 8.5369,1.2958 12.69456,0.26955 7.31277,-1.64267 13.9237,-5.32376 20.51953,-8.74387 4.35604,-2.28907 8.66919,-4.70056 13.22314,-6.57805 2.19027,-0.44436 4.29633,0.48096 6.39883,0.88652 1.12616,0.30405 2.24944,0.63792 3.42471,1.02929 9.89759,3.32419 18.80495,8.95253 27.35797,14.83159 9.60214,6.67635 18.83584,13.8873 28.67442,20.21701 1.81523,1.44232 2.01025,4.45281 0.29511,6.05269 -1.18127,1.12727 -2.69962,1.81802 -4.02559,2.7576 -20.09966,13.11068 -40.67378,25.47586 -60.8399,38.48291 -9.96369,-3.64417 -18.76816,-9.70519 -28.31054,-14.23828 -5.34352,-2.47216 -11.27535,-4.34129 -17.22237,-3.5115 -2.23037,0.31113 -4.43888,1.00335 -6.29472,2.30511 -9.41413,5.6132 -20.00552,8.69886 -30.20947,12.5061 -7.8109,2.84323 -15.72475,5.92179 -22.32775,11.09558 -4.14348,3.33658 -7.40401,8.02695 -8.19394,13.36751 -0.75011,4.4178 0.0808,8.89125 -0.11393,13.33558 -0.0446,2.47431 -0.1663,4.78571 -0.33618,7.26123 -0.7016,9.88267 -2.18914,19.87652 -1.92566,29.86437 0.15833,5.61102 0.98818,11.38546 3.72433,16.36565 2.44787,4.28244 6.64099,7.37128 11.27534,8.93309 2.96165,1.01936 5.95313,1.9621 8.82273,3.22974 16.61941,6.96981 31.54004,17.40843 48.2906,24.09353 8.35504,3.30306 17.3626,5.41067 26.39188,4.73995 1.59654,-0.65955 2.95687,-1.7592 4.46121,-2.59492 34.97252,-21.48909 67.36925,-46.77662 100.70996,-70.64113 2.40223,-1.72533 4.80662,-3.4479 7.20969,-5.17216 3.12283,0.94464 6.45003,2.34189 8.1566,5.30326 2.63181,4.23393 2.95848,9.37168 3.10974,14.22553 0.0833,3.31727 0.004,6.60823 -0.11791,9.87356 -0.21995,6.79385 -0.7923,13.61211 -0.125,20.39843 0.20259,2.16638 0.20474,4.521 -0.33146,6.70372 -1.0519,4.92922 -3.98913,9.33555 -7.88721,12.48684 -4.60501,3.92369 -10.18337,6.53657 -15.54322,9.09565 -5.27007,2.60362 -10.87123,4.82949 -15.34311,8.75008 -3.14872,2.8351 -5.29862,6.60832 -6.92578,10.47774 -3.38575,8.39922 -4.00047,17.60263 -3.79623,26.56693 0.33468,12.34083 2.50879,24.53129 4.78404,36.63584 23.29475,15.98048 48.86901,28.22319 74.1637,40.59903 3.68993,1.78904 7.35713,3.65372 11.08044,5.36581 1.3382,0.36422 2.72081,0.68421 4.08264,0.85588 14.97883,-4.04776 28.84434,-11.24143 42.34205,-18.73961 11.53711,-6.35617 22.86975,-13.13079 34.83628,-18.66637 4.22894,-1.55707 8.44379,-3.61358 11.45999,-7.06209 4.09602,-4.4785 5.93166,-10.51995 6.66278,-16.43202 0.92354,-7.35214 0.49188,-14.78778 -0.0139,-22.15442 -0.67411,-9.31054 -1.67798,-18.63084 -1.29362,-27.9791 -5.24479,-6.86889 -12.45843,-11.86973 -19.80582,-16.25267 -5.70939,-3.42205 -11.57773,-6.5755 -17.2495,-9.97521 -3.48793,-2.1042 -6.91214,-4.29698 -10.24384,-6.71085 -0.72961,-0.25274 -0.3909,-1.04781 -0.45847,-1.63664 0.10339,-17.34117 -0.25832,-34.68823 0.31622,-52.02424 0.0871,-2.86433 0.24803,-5.86427 0.35547,-8.77734 0.24524,-1.51291 0.97602,-2.92863 1.82743,-4.17922 1.01119,-0.96492 2.69388,-0.72675 3.64269,0.20957 13.7572,9.30561 27.45185,18.70282 41.06504,28.21769 14.32134,10.01422 28.62533,20.04233 42.89178,30.13048 9.85111,7.13736 19.42479,14.89572 30.55621,19.99718 6.32797,2.8654 13.46903,4.59642 20.40357,3.28445 5.01892,-0.91491 9.51952,-3.53842 13.56592,-6.54339 4.1904,-2.64327 8.6938,-4.74592 13.1878,-6.81289 12.49,-5.62316 25.6326,-9.85522 37.5685,-16.66375 6.6826,-3.86072 12.9614,-8.79041 17.159,-15.36138 0.077,-0.98215 -0.1432,-2.04092 -0.1765,-3.05218 -1.0891,-15.56938 0.8661,-31.18693 -0.42,-46.74805 -0.6817,-7.73457 -2.3041,-15.61186 -6.4028,-22.31119 -0.698,-1.07942 -1.3987,-2.21543 -2.2632,-3.14351 -6.5959,-2.34922 -12.9212,-5.37852 -19.1484,-8.56287 -8.7431,-4.45721 -17.485,-9.32684 -26.689,-12.95173 -7.9225,-3.0727 -16.4727,-5.18735 -25.01999,-4.27874 -0.69625,0.0946 -1.45907,0.031 -1.9507,0.62492 -1.86973,1.50356 -4.00206,2.99524 -5.93993,4.18562 -3.11255,1.91641 -6.61385,3.63178 -10.16309,4.85819 -5.17482,1.81524 -10.69246,2.62925 -16.17089,2.39377 -0.76721,-0.0353 -1.83478,-0.10813 -2.71485,-0.19727 -8.76802,-0.87792 -17.09685,-4.23876 -24.66465,-8.63987 -6.70946,-3.87704 -12.94638,-8.62728 -18.84121,-13.55739 -5.3555,-2.04179 -10.86973,-4.46433 -14.67498,-8.91892 -2.71108,-3.28176 -3.6238,-8.13451 -1.72969,-12.03365 1.92136,-4.4162 5.87455,-7.47217 9.75916,-10.09482 7.41881,-4.95593 15.60058,-8.5845 23.40489,-12.86517 3.87755,-2.08906 7.78444,-4.23221 11.15815,-7.08878 2.01088,-1.89507 3.89167,-4.04315 6.46834,-5.18776 3.79471,-1.90744 8.31932,-2.18549 12.35001,-0.87941 6.3308,1.82617 11.47084,6.14955 17.28242,9.06683 1.89042,0.93426 3.95479,1.46325 5.78158,2.52681 6.71632,3.31352 14.54253,4.15556 21.85253,2.61957 9.4786,-1.84944 18.1485,-6.35056 26.5334,-10.96985 11.3346,-6.30144 22.2737,-13.46349 34.3962,-18.21392 4.2955,-10.61758 5.7235,-22.14012 6.0312,-33.51651 0.3858,-15.15412 -1.1682,-30.25794 -2.2616,-45.35263 -12.3858,-9.88221 -26.6329,-16.99787 -40.689,-24.14553 -9.5,-4.83571 -19.0575,-9.61979 -28.0582,-15.35042 -6.12007,-4.66644 -14.05816,-6.41988 -21.64672,-5.96219 -1.19198,-0.0473 -2.37843,0.32604 -3.2616,1.13778 -38.22332,26.10576 -75.04874,54.16648 -112.57695,81.24614 -2.71304,0.6413 -5.49842,-0.66111 -7.54085,-2.3846 -2.98399,-2.60674 -4.29719,-6.57185 -4.74676,-10.40275 -0.82369,-5.94443 -0.34169,-11.84447 -0.0213,-17.79103 0.33714,-6.47411 1.01497,-12.99967 0.0809,-19.45673 -0.74071,-5.92858 1.52712,-12.06105 5.76034,-16.24201 4.84104,-4.96478 11.25754,-7.86952 17.35846,-10.94667 3.99683,-2.00052 8.09479,-3.99903 11.43912,-7.01665 0.99698,-0.95764 1.86712,-2.07596 3.12921,-2.70104 5.52795,-3.56549 9.52876,-9.28516 11.25959,-15.60778 2.32363,-7.95342 2.23731,-16.36205 1.6583,-24.55425 -0.85794,-10.76518 -2.81251,-21.40013 -4.13281,-32.11133 -21.60154,-15.33596 -45.2301,-27.50365 -68.56022,-39.89174 -5.52038,-2.93006 -11.02072,-5.90598 -16.52315,-8.86385 -2.21137,-0.75553 -4.61644,-0.71584 -6.9264,-0.73464 z"/>
+                </svg>
+            </span>
+            SVEND
+        </div>
+        <div class="nav-links">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#tools" class="nav-link">Tools</a>
+            <a href="#pricing" class="nav-link">Pricing</a>
+            <a href="#faq" class="nav-link">FAQ</a>
+            <a href="#" class="nav-btn">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">Launching May 2026</div>
+        <h1 class="hero-title">Reasoning that <strong>shows its work</strong></h1>
+        <p class="hero-subtitle">
+            A small language model that thinks step-by-step, calls tools for verified computation, and checks its own answers.
+        </p>
+        <div class="hero-cta">
+            <a href="#pricing" class="btn-primary">Start for $5/month</a>
+            <a href="#" class="btn-secondary">Watch Demo</a>
+        </div>
+
+        <!-- Demo Preview -->
+        <div class="demo-preview">
+            <div class="demo-header">
+                <div class="demo-dot"></div>
+                <div class="demo-dot"></div>
+                <div class="demo-dot"></div>
+            </div>
+            <div class="demo-content">
+                <div class="demo-user">
+                    <div class="demo-user-bubble">Solve 2x^2 + 5x - 3 = 0</div>
+                </div>
+                <div class="demo-assistant">
+                    <div class="demo-step">
+                        <div class="demo-step-label">Step 1: Identify</div>
+                        <div class="demo-step-text">Quadratic equation in standard form. Using SymPy for symbolic solution...</div>
+                    </div>
+                    <div class="demo-step">
+                        <div class="demo-step-label">Step 2: Verify</div>
+                        <div class="demo-step-text">Substituting solutions back: f(-3) = 0 ✓ and f(0.5) = 0 ✓</div>
+                    </div>
+                    <div class="demo-answer">
+                        <div class="demo-answer-label">✓ Verified Answer</div>
+                        <div class="demo-answer-text">x = -3 and x = 1/2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <h2 class="section-title">Built for accuracy</h2>
+        <p class="section-subtitle">Every answer is reasoned through and verified with tools</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">&#9670;</div>
+                <h3 class="feature-title">Step-by-step reasoning</h3>
+                <p class="feature-desc">See exactly how Svend thinks through problems. Every step is visible and explainable.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#9881;</div>
+                <h3 class="feature-title">Tool-augmented</h3>
+                <p class="feature-desc">Calls Python, SymPy, and Z3 for verified computation. No more hallucinated math.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#10003;</div>
+                <h3 class="feature-title">Self-verified</h3>
+                <p class="feature-desc">A critic model checks every answer before showing it to you. Built-in quality control.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128200;</div>
+                <h3 class="feature-title">Math & science focus</h3>
+                <p class="feature-desc">Specialized for calculus, physics, chemistry, and logic problems.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#8681;</div>
+                <h3 class="feature-title">Export anywhere</h3>
+                <p class="feature-desc">Export to PDF, LaTeX, or Markdown. Perfect for homework and research.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128274;</div>
+                <h3 class="feature-title">Private by default</h3>
+                <p class="feature-desc">Your conversations are yours. We don't train on your data.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools -->
+    <section class="tools" id="tools">
+        <div class="tools-inner">
+            <h2 class="section-title">Verified computation</h2>
+            <p class="section-subtitle">Svend calls real tools for real answers</p>
+
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <span class="tool-badge tool-badge--python">Python</span>
+                    <h3 class="tool-name">Sandboxed Code</h3>
+                    <p class="tool-desc">Safe code execution for numerical computation</p>
+                </div>
+                <div class="tool-card">
+                    <span class="tool-badge tool-badge--sympy">SymPy</span>
+                    <h3 class="tool-name">Symbolic Math</h3>
+                    <p class="tool-desc">Exact solutions, no floating point errors</p>
+                </div>
+                <div class="tool-card">
+                    <span class="tool-badge tool-badge--z3">Z3</span>
+                    <h3 class="tool-name">Logic Solver</h3>
+                    <p class="tool-desc">SAT solving and constraint satisfaction</p>
+                </div>
+                <div class="tool-card">
+                    <span class="tool-badge tool-badge--verify">Verifier</span>
+                    <h3 class="tool-name">Answer Critic</h3>
+                    <p class="tool-desc">Separate model checks every answer</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Simple pricing</h2>
+        <p class="section-subtitle">One plan, everything included</p>
+
+        <div class="pricing-cards">
+            <div class="pricing-card">
+                <h3 class="pricing-name">Free Trial</h3>
+                <p class="pricing-desc">Try Svend with limited queries</p>
+                <div class="pricing-price">
+                    <span class="pricing-amount">$0</span>
+                    <span class="pricing-period">/month</span>
+                </div>
+                <ul class="pricing-features">
+                    <li>10 queries per day</li>
+                    <li>Basic reasoning steps</li>
+                    <li>Python tool access</li>
+                    <li>Standard response time</li>
+                </ul>
+                <button class="pricing-btn pricing-btn-secondary">Start Free</button>
+            </div>
+
+            <div class="pricing-card featured">
+                <div class="pricing-popular">Most Popular</div>
+                <h3 class="pricing-name">Svend Pro</h3>
+                <p class="pricing-desc">Full access, unlimited reasoning</p>
+                <div class="pricing-price">
+                    <span class="pricing-amount">$5</span>
+                    <span class="pricing-period">/month</span>
+                </div>
+                <ul class="pricing-features">
+                    <li>1,000 queries per month</li>
+                    <li>Full reasoning transparency</li>
+                    <li>All tools (Python, SymPy, Z3)</li>
+                    <li>Priority processing</li>
+                    <li>Export to PDF/LaTeX</li>
+                    <li>API access</li>
+                </ul>
+                <button class="pricing-btn pricing-btn-primary">Get Started</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq" id="faq">
+        <div class="faq-inner">
+            <h2 class="section-title">Questions</h2>
+
+            <div class="faq-item">
+                <div class="faq-question">What makes Svend different from ChatGPT?</div>
+                <div class="faq-answer">Svend is a smaller, specialized model focused on step-by-step reasoning. It shows its work, calls tools for verified computation, and has a separate critic model that checks answers before showing them to you.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">What subjects does Svend support?</div>
+                <div class="faq-answer">Svend is optimized for math (calculus, algebra, statistics), physics, chemistry, and logic/proofs. It's built for problems where verification matters.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Is my data private?</div>
+                <div class="faq-answer">Yes. We don't train on your conversations, and you can delete your data at any time. Conversations are encrypted in transit and at rest.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Can I cancel anytime?</div>
+                <div class="faq-answer">Absolutely. No contracts, no commitments. Cancel with one click and keep access until the end of your billing period.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <span class="footer-logo-icon">
+                    <svg viewBox="590 180 400 680" xmlns="http://www.w3.org/2000/svg">
+                        <path d="m 810.34961,183.98438 c -8.00929,0.28308 -15.5701,3.48413 -22.48495,7.32376 -12.87788,7.1817 -24.40922,16.65459 -37.84868,22.84732 -4.31757,2.08674 -9.12821,2.91574 -13.3771,5.16756 -7.15857,3.4834 -13.4768,8.9205 -17.4074,15.89893 -4.63628,8.03202 -6.3024,17.46727 -6.06699,26.65644 0.0985,4.79617 0.75632,9.56171 1.64764,14.269 0.0476,1.43947 -0.58472,2.80552 -0.6551,4.24336 -0.75319,5.38879 0.11601,11.14811 3.19493,15.71841 3.74987,5.93489 9.53028,10.16542 15.27939,14.00871 10.15322,6.72796 21.26277,12.12274 30.43779,20.24424 0.72261,0.57357 1.06428,1.45781 1.01481,2.36706 0.25419,10.62114 0.26429,21.24817 0.15168,31.87217 -0.10997,9.76491 -0.23395,19.53062 -0.32352,29.29514 -0.2559,2.18138 -2.48681,3.93272 -4.67536,3.50098 -1.73761,-0.32579 -2.97662,-1.73361 -4.40792,-2.66331 -35.6616,-26.03244 -71.15984,-52.30412 -107.51397,-77.36576 -1.79592,-1.18526 -3.52006,-2.4953 -5.36053,-3.6031 -2.38777,-1.13215 -5.02429,-1.65761 -7.63204,-1.97563 -6.86268,-0.69881 -13.69347,1.24508 -19.88444,4.07709 -9.03352,4.05728 -17.18145,9.7518 -25.58752,14.92132 -3.36838,2.10086 -6.87005,4.24739 -10.41869,6.1631 -0.99569,0.52942 -2.22,1.17581 -3.31848,1.71944 -4.07079,2.03607 -8.31873,3.71411 -12.69879,4.95454 -4.02638,1.19323 -7.8786,3.2257 -10.74869,6.34031 -2.96251,3.09048 -4.72915,7.11427 -5.71781,11.23537 -1.55545,6.40335 -1.57897,13.05115 -1.41863,19.6009 0.26795,9.17433 1.23843,18.2732 1.00241,27.46227 0.0207,3.42545 -1.03941,6.75735 -0.90681,10.1895 0.001,5.08446 1.56132,10.25252 4.8747,14.1707 4.43736,5.53069 10.76398,9.06598 17.04291,12.11545 11.82295,5.71965 24.58514,9.32817 36.12161,15.66465 2.63761,1.56679 5.14743,3.4485 8.1405,4.29671 4.09389,1.33597 8.5369,1.2958 12.69456,0.26955 7.31277,-1.64267 13.9237,-5.32376 20.51953,-8.74387 4.35604,-2.28907 8.66919,-4.70056 13.22314,-6.57805 2.19027,-0.44436 4.29633,0.48096 6.39883,0.88652 1.12616,0.30405 2.24944,0.63792 3.42471,1.02929 9.89759,3.32419 18.80495,8.95253 27.35797,14.83159 9.60214,6.67635 18.83584,13.8873 28.67442,20.21701 1.81523,1.44232 2.01025,4.45281 0.29511,6.05269 -1.18127,1.12727 -2.69962,1.81802 -4.02559,2.7576 -20.09966,13.11068 -40.67378,25.47586 -60.8399,38.48291 -9.96369,-3.64417 -18.76816,-9.70519 -28.31054,-14.23828 -5.34352,-2.47216 -11.27535,-4.34129 -17.22237,-3.5115 -2.23037,0.31113 -4.43888,1.00335 -6.29472,2.30511 -9.41413,5.6132 -20.00552,8.69886 -30.20947,12.5061 -7.8109,2.84323 -15.72475,5.92179 -22.32775,11.09558 -4.14348,3.33658 -7.40401,8.02695 -8.19394,13.36751 -0.75011,4.4178 0.0808,8.89125 -0.11393,13.33558 -0.0446,2.47431 -0.1663,4.78571 -0.33618,7.26123 -0.7016,9.88267 -2.18914,19.87652 -1.92566,29.86437 0.15833,5.61102 0.98818,11.38546 3.72433,16.36565 2.44787,4.28244 6.64099,7.37128 11.27534,8.93309 2.96165,1.01936 5.95313,1.9621 8.82273,3.22974 16.61941,6.96981 31.54004,17.40843 48.2906,24.09353 8.35504,3.30306 17.3626,5.41067 26.39188,4.73995 1.59654,-0.65955 2.95687,-1.7592 4.46121,-2.59492 34.97252,-21.48909 67.36925,-46.77662 100.70996,-70.64113 2.40223,-1.72533 4.80662,-3.4479 7.20969,-5.17216 3.12283,0.94464 6.45003,2.34189 8.1566,5.30326 2.63181,4.23393 2.95848,9.37168 3.10974,14.22553 0.0833,3.31727 0.004,6.60823 -0.11791,9.87356 -0.21995,6.79385 -0.7923,13.61211 -0.125,20.39843 0.20259,2.16638 0.20474,4.521 -0.33146,6.70372 -1.0519,4.92922 -3.98913,9.33555 -7.88721,12.48684 -4.60501,3.92369 -10.18337,6.53657 -15.54322,9.09565 -5.27007,2.60362 -10.87123,4.82949 -15.34311,8.75008 -3.14872,2.8351 -5.29862,6.60832 -6.92578,10.47774 -3.38575,8.39922 -4.00047,17.60263 -3.79623,26.56693 0.33468,12.34083 2.50879,24.53129 4.78404,36.63584 23.29475,15.98048 48.86901,28.22319 74.1637,40.59903 3.68993,1.78904 7.35713,3.65372 11.08044,5.36581 1.3382,0.36422 2.72081,0.68421 4.08264,0.85588 14.97883,-4.04776 28.84434,-11.24143 42.34205,-18.73961 11.53711,-6.35617 22.86975,-13.13079 34.83628,-18.66637 4.22894,-1.55707 8.44379,-3.61358 11.45999,-7.06209 4.09602,-4.4785 5.93166,-10.51995 6.66278,-16.43202 0.92354,-7.35214 0.49188,-14.78778 -0.0139,-22.15442 -0.67411,-9.31054 -1.67798,-18.63084 -1.29362,-27.9791 -5.24479,-6.86889 -12.45843,-11.86973 -19.80582,-16.25267 -5.70939,-3.42205 -11.57773,-6.5755 -17.2495,-9.97521 -3.48793,-2.1042 -6.91214,-4.29698 -10.24384,-6.71085 -0.72961,-0.25274 -0.3909,-1.04781 -0.45847,-1.63664 0.10339,-17.34117 -0.25832,-34.68823 0.31622,-52.02424 0.0871,-2.86433 0.24803,-5.86427 0.35547,-8.77734 0.24524,-1.51291 0.97602,-2.92863 1.82743,-4.17922 1.01119,-0.96492 2.69388,-0.72675 3.64269,0.20957 13.7572,9.30561 27.45185,18.70282 41.06504,28.21769 14.32134,10.01422 28.62533,20.04233 42.89178,30.13048 9.85111,7.13736 19.42479,14.89572 30.55621,19.99718 6.32797,2.8654 13.46903,4.59642 20.40357,3.28445 5.01892,-0.91491 9.51952,-3.53842 13.56592,-6.54339 4.1904,-2.64327 8.6938,-4.74592 13.1878,-6.81289 12.49,-5.62316 25.6326,-9.85522 37.5685,-16.66375 6.6826,-3.86072 12.9614,-8.79041 17.159,-15.36138 0.077,-0.98215 -0.1432,-2.04092 -0.1765,-3.05218 -1.0891,-15.56938 0.8661,-31.18693 -0.42,-46.74805 -0.6817,-7.73457 -2.3041,-15.61186 -6.4028,-22.31119 -0.698,-1.07942 -1.3987,-2.21543 -2.2632,-3.14351 -6.5959,-2.34922 -12.9212,-5.37852 -19.1484,-8.56287 -8.7431,-4.45721 -17.485,-9.32684 -26.689,-12.95173 -7.9225,-3.0727 -16.4727,-5.18735 -25.01999,-4.27874 -0.69625,0.0946 -1.45907,0.031 -1.9507,0.62492 -1.86973,1.50356 -4.00206,2.99524 -5.93993,4.18562 -3.11255,1.91641 -6.61385,3.63178 -10.16309,4.85819 -5.17482,1.81524 -10.69246,2.62925 -16.17089,2.39377 -0.76721,-0.0353 -1.83478,-0.10813 -2.71485,-0.19727 -8.76802,-0.87792 -17.09685,-4.23876 -24.66465,-8.63987 -6.70946,-3.87704 -12.94638,-8.62728 -18.84121,-13.55739 -5.3555,-2.04179 -10.86973,-4.46433 -14.67498,-8.91892 -2.71108,-3.28176 -3.6238,-8.13451 -1.72969,-12.03365 1.92136,-4.4162 5.87455,-7.47217 9.75916,-10.09482 7.41881,-4.95593 15.60058,-8.5845 23.40489,-12.86517 3.87755,-2.08906 7.78444,-4.23221 11.15815,-7.08878 2.01088,-1.89507 3.89167,-4.04315 6.46834,-5.18776 3.79471,-1.90744 8.31932,-2.18549 12.35001,-0.87941 6.3308,1.82617 11.47084,6.14955 17.28242,9.06683 1.89042,0.93426 3.95479,1.46325 5.78158,2.52681 6.71632,3.31352 14.54253,4.15556 21.85253,2.61957 9.4786,-1.84944 18.1485,-6.35056 26.5334,-10.96985 11.3346,-6.30144 22.2737,-13.46349 34.3962,-18.21392 4.2955,-10.61758 5.7235,-22.14012 6.0312,-33.51651 0.3858,-15.15412 -1.1682,-30.25794 -2.2616,-45.35263 -12.3858,-9.88221 -26.6329,-16.99787 -40.689,-24.14553 -9.5,-4.83571 -19.0575,-9.61979 -28.0582,-15.35042 -6.12007,-4.66644 -14.05816,-6.41988 -21.64672,-5.96219 -1.19198,-0.0473 -2.37843,0.32604 -3.2616,1.13778 -38.22332,26.10576 -75.04874,54.16648 -112.57695,81.24614 -2.71304,0.6413 -5.49842,-0.66111 -7.54085,-2.3846 -2.98399,-2.60674 -4.29719,-6.57185 -4.74676,-10.40275 -0.82369,-5.94443 -0.34169,-11.84447 -0.0213,-17.79103 0.33714,-6.47411 1.01497,-12.99967 0.0809,-19.45673 -0.74071,-5.92858 1.52712,-12.06105 5.76034,-16.24201 4.84104,-4.96478 11.25754,-7.86952 17.35846,-10.94667 3.99683,-2.00052 8.09479,-3.99903 11.43912,-7.01665 0.99698,-0.95764 1.86712,-2.07596 3.12921,-2.70104 5.52795,-3.56549 9.52876,-9.28516 11.25959,-15.60778 2.32363,-7.95342 2.23731,-16.36205 1.6583,-24.55425 -0.85794,-10.76518 -2.81251,-21.40013 -4.13281,-32.11133 -21.60154,-15.33596 -45.2301,-27.50365 -68.56022,-39.89174 -5.52038,-2.93006 -11.02072,-5.90598 -16.52315,-8.86385 -2.21137,-0.75553 -4.61644,-0.71584 -6.9264,-0.73464 z"/>
+                    </svg>
+                </span>
+                SVEND
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Terms</a>
+                <a href="#" class="footer-link">Documentation</a>
+                <a href="#" class="footer-link">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Firefly generation
+        function createFireflies() {
+            const container = document.getElementById('fireflies');
+            const count = 40;
+
+            for (let i = 0; i < count; i++) {
+                const firefly = document.createElement('div');
+                firefly.className = 'firefly';
+
+                // Random position across the full page
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+
+                // Random colors - warm yellows, oranges, occasional cool green
+                const colors = [
+                    '#e8c547', '#e8c547', '#e8c547', // warm yellow (most common)
+                    '#e8a847', '#e89547',             // orange tints
+                    '#d4c96a',                        // pale yellow
+                    '#a7d4a7',                        // cool green (rare)
+                ];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                // Random size
+                const size = 2 + Math.random() * 3;
+
+                // Random animation timing
+                const floatDuration = 8 + Math.random() * 8;
+                const glowDuration = 2 + Math.random() * 3;
+                const floatDelay = Math.random() * -15;
+                const glowDelay = Math.random() * -5;
+
+                firefly.style.cssText = `
+                    left: ${x}%;
+                    top: ${y}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    color: ${color};
+                    animation: firefly-float ${floatDuration}s ease-in-out infinite;
+                    animation-delay: ${floatDelay}s;
+                `;
+
+                firefly.innerHTML = `<style>
+                    #fireflies .firefly:nth-child(${i + 1})::before {
+                        background: ${color};
+                        animation: firefly-glow ${glowDuration}s ease-in-out infinite;
+                        animation-delay: ${glowDelay}s;
+                    }
+                </style>`;
+
+                container.appendChild(firefly);
+            }
+        }
+
+        createFireflies();
+
+        // FAQ toggle
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', function() {
+                const answer = this.nextElementSibling;
+                const isOpen = answer.style.display === 'block';
+                document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
+                document.querySelectorAll('.faq-question').forEach(q => q.style.setProperty('--after-content', '"+"'));
+                if (!isOpen) {
+                    answer.style.display = 'block';
+                    this.querySelector('::after')?.remove();
+                }
+            });
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

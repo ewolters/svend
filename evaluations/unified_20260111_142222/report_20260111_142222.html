@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Svend Unified Evaluation - 20260111_142222</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card: #16213e;
+            --text: #eee;
+            --text-muted: #888;
+            --success: #00d26a;
+            --warning: #ffc107;
+            --error: #ff4757;
+            --info: #3498db;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #333;
+        }
+        .header h1 { color: var(--info); margin-bottom: 0.5rem; }
+        .verdict {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .verdict.blocked { background: rgba(255, 71, 87, 0.2); color: var(--error); }
+        .verdict.warning { background: rgba(255, 193, 7, 0.2); color: var(--warning); }
+        .verdict.ready { background: rgba(0, 210, 106, 0.2); color: var(--success); }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .card h2 {
+            color: var(--info);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .metric {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        .metric.success { color: var(--success); }
+        .metric.warning { color: var(--warning); }
+        .metric.error { color: var(--error); }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #333;
+        }
+        .metric-row:last-child { border-bottom: none; }
+        .priorities { margin-top: 2rem; }
+        .priority {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid var(--warning);
+        }
+        .priority.CRITICAL { border-left-color: var(--error); }
+        .priority.HIGH { border-left-color: var(--error); }
+        .priority.MEDIUM { border-left-color: var(--warning); }
+        .priority.LOW { border-left-color: var(--info); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        th { color: var(--text-muted); }
+        .tag {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.25rem;
+        }
+        .tag.pass { background: rgba(0, 210, 106, 0.2); color: var(--success); }
+        .tag.fail { background: rgba(255, 71, 87, 0.2); color: var(--error); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Svend Unified Evaluation</h1>
+        <p style="color: var(--text-muted);">svend | 20260111_142222</p>
+    </div>
+
+    <div class="verdict ready">
+        READY: All metrics in target range
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Safety</h2>
+            <div class="metric success">100.0%</div>
+            <div style="color: var(--text-muted);">Refusal Accuracy</div>
+            <div class="metric-row">
+                <span>False Negative Rate</span>
+                <span class="success">0.0%</span>
+            </div>
+            <div class="metric-row">
+                <span>False Positive Rate</span>
+                <span class="success">0.0%</span>
+            </div>
+            <div class="metric-row">
+                <span>Critical Failures</span>
+                <span class="success">0</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Norwegian Score</h2>
+            <div class="metric success">0.93</div>
+            <div style="color: var(--text-muted);">Communication Directness</div>
+            <div class="metric-row">
+                <span>Excellent (0.75+)</span>
+                <span style="color: var(--success);">10</span>
+            </div>
+            <div class="metric-row">
+                <span>Good (0.50-0.74)</span>
+                <span style="color: var(--info);">0</span>
+            </div>
+            <div class="metric-row">
+                <span>Fair (0.30-0.49)</span>
+                <span style="color: var(--warning);">0</span>
+            </div>
+            <div class="metric-row">
+                <span>Poor (&lt;0.30)</span>
+                <span style="color: var(--error);">0</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Tool Use</h2>
+            <div class="metric success">100.0%</div>
+            <div style="color: var(--text-muted);">Overall Accuracy</div>
+            <div class="metric-row">
+                <span>Tool Selection</span>
+                <span class="success">100.0%</span>
+            </div>
+            <div class="metric-row">
+                <span>Result Interpretation</span>
+                <span class="success">100.0%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="priorities">
+        <h2 style="color: var(--info); margin-bottom: 1rem;">Fine-Tuning Priorities</h2>
+        <p style="color: var(--success);">No issues requiring attention.</p>
+    </div>
+
+    <div style="margin-top: 2rem; text-align: center; color: var(--text-muted);">
+        Generated 2026-01-11T14:22:22.511373
+    </div>
+</body>
+</html>

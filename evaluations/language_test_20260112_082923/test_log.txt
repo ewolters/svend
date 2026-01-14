@@ -1,0 +1,57 @@
+============================================================
+SVEND LANGUAGE MODEL TEST
+Started: Mon 01/12/2026  8:29:23.39
+============================================================
+
+Checkpoint: checkpoints\language-500m-20260112\final-language-model.pt
+Log directory: evaluations\language_test_20260112_082923
+
+[OK] Checkpoint found 
+ 
+============================================================ 
+Stage 1: Quick Model Test 
+============================================================ 
+
+============================================================
+SVEND QUICK TEST
+============================================================
+Checkpoint: checkpoints\language-500m-20260112\final-language-model.pt
+Device: cuda
+============================================================
+
+Loading model...
+  Loaded checkpoint with keys: ['model_state_dict', 'config', 'tokenizer_name', 'training_steps', 'training_config']
+  Model config: unknown
+
+  ERROR: Failed to load model: cannot import name 'get_model_config' from 'src.models.config' (C:\Users\ewolt\juniperware\reasoning-lab\src\models\config.py)
+ 
+Exit Code: 1 
+[WARN] Stage 1 - Exit code 1 
+ 
+============================================================ 
+Stage 2: Evaluation Pipeline 
+============================================================ 
+CUDA not available, using CPU
+======================================================================
+SVEND EVALUATION PIPELINE - STAGE: LANGUAGE
+======================================================================
+Loading checkpoint: checkpoints\language-500m-20260112\final-language-model.pt
+Traceback (most recent call last):
+  File "C:\Users\ewolt\juniperware\reasoning-lab\scripts\eval_pipeline.py", line 678, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\ewolt\juniperware\reasoning-lab\scripts\eval_pipeline.py", line 649, in main
+    report = eval_language_model(args.checkpoint, args.device)
+  File "C:\Users\ewolt\juniperware\reasoning-lab\scripts\eval_pipeline.py", line 265, in eval_language_model
+    model, tokenizer, config = load_model(checkpoint_path, device)
+                               ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ewolt\juniperware\reasoning-lab\scripts\eval_pipeline.py", line 153, in load_model
+    config = TransformerConfig(**checkpoint["config"])
+TypeError: TransformerConfig.__init__() got an unexpected keyword argument 'head_dim'
+ 
+Exit Code: 1 
+[WARN] Stage 2 - Exit code 1 
+ 
+============================================================ 
+Stage 3: Unified Evaluation 
+============================================================ 

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Svend - UI States</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0f0a;
+            --bg-secondary: #0d120d;
+            --bg-tertiary: #121a12;
+            --bg-hover: #1a261a;
+            --accent-primary: #4a9f6e;
+            --accent-primary-dim: rgba(74, 159, 110, 0.15);
+            --accent-primary-border: rgba(74, 159, 110, 0.3);
+            --accent-blue: #3a7f8f;
+            --accent-gold: #e8c547;
+            --accent-orange: #e89547;
+            --accent-red: #9f4a4a;
+            --text-primary: #e8efe8;
+            --text-secondary: #9aaa9a;
+            --text-dim: #5a6a5a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+        }
+
+        .katex { font-size: 1.1em; color: var(--text-primary); }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 3rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin-bottom: 2rem;
+        }
+
+        .demo-label {
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Reasoning Panels */
+        .reasoning-panel {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(74, 159, 110, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .reasoning-header {
+            padding: 0.75rem 1rem;
+            background: rgba(74, 159, 110, 0.05);
+            border-bottom: 1px solid rgba(74, 159, 110, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .reasoning-header:hover {
+            background: rgba(74, 159, 110, 0.08);
+        }
+
+        .reasoning-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-primary);
+        }
+
+        .reasoning-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .chevron {
+            transition: transform 0.2s;
+            color: var(--text-dim);
+        }
+
+        .collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .reasoning-steps {
+            padding: 1.25rem;
+        }
+
+        .collapsed .reasoning-steps {
+            display: none;
+        }
+
+        /* Collapsed Summary */
+        .collapsed-summary {
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        .collapsed .collapsed-summary {
+            display: block;
+        }
+
+        .step {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .step:last-child { margin-bottom: 0; }
+
+        .step-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .step-number {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-primary-dim);
+            border: 1px solid var(--accent-primary-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 500;
+            color: var(--accent-primary);
+        }
+
+        .step-line {
+            flex: 1;
+            width: 1px;
+            background: rgba(74, 159, 110, 0.2);
+            min-height: 20px;
+        }
+
+        .step-content { flex: 1; }
+
+        .step-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .badge-verified {
+            background: rgba(74, 159, 110, 0.15);
+            color: var(--accent-primary);
+        }
+
+        .badge-error {
+            background: rgba(159, 74, 74, 0.15);
+            color: var(--accent-red);
+        }
+
+        .badge-warning {
+            background: rgba(232, 149, 71, 0.15);
+            color: var(--accent-orange);
+        }
+
+        /* Error Panel */
+        .error-panel {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(159, 74, 74, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .error-header {
+            padding: 0.75rem 1rem;
+            background: rgba(159, 74, 74, 0.1);
+            border-bottom: 1px solid rgba(159, 74, 74, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-icon {
+            color: var(--accent-red);
+            font-size: 1rem;
+        }
+
+        .error-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent-red);
+        }
+
+        .error-body {
+            padding: 1rem;
+        }
+
+        .error-message {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .error-code {
+            background: var(--bg-primary);
+            border: 1px solid rgba(159, 74, 74, 0.2);
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-red);
+            overflow-x: auto;
+        }
+
+        .retry-btn {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(159, 74, 74, 0.15);
+            border: 1px solid rgba(159, 74, 74, 0.3);
+            border-radius: 4px;
+            color: #b06a6a;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .retry-btn:hover {
+            background: rgba(159, 74, 74, 0.25);
+        }
+
+        /* Final Answer Variants */
+        .final-answer {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .final-answer.success {
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(232, 197, 71, 0.15);
+        }
+
+        .final-answer.partial {
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(232, 149, 71, 0.2);
+        }
+
+        .final-answer-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .final-answer.success .final-answer-label { color: var(--accent-gold); }
+        .final-answer.partial .final-answer-label { color: var(--accent-orange); }
+
+        .final-answer-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .answer-box {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(232, 197, 71, 0.08);
+            border: 1px solid rgba(232, 197, 71, 0.2);
+            border-radius: 6px;
+            margin-top: 0.5rem;
+        }
+
+        .answer-box .katex { color: var(--accent-gold); }
+
+        /* Tool States */
+        .tool-call {
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .tool-call.success { border: 1px solid rgba(74, 159, 110, 0.2); }
+        .tool-call.error { border: 1px solid rgba(159, 74, 74, 0.3); }
+        .tool-call.timeout { border: 1px solid rgba(232, 149, 71, 0.3); }
+
+        .tool-call-header {
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tool-call.success .tool-call-header { background: rgba(74, 159, 110, 0.08); border-bottom: 1px solid rgba(74, 159, 110, 0.15); }
+        .tool-call.error .tool-call-header { background: rgba(159, 74, 74, 0.08); border-bottom: 1px solid rgba(159, 74, 74, 0.15); }
+        .tool-call.timeout .tool-call-header { background: rgba(232, 149, 71, 0.08); border-bottom: 1px solid rgba(232, 149, 71, 0.15); }
+
+        .tool-badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tool-badge.python { background: rgba(74, 159, 110, 0.15); color: #4a9f6e; }
+        .tool-badge.sympy { background: rgba(58, 127, 143, 0.15); color: #3a7f8f; }
+
+        .tool-call-name { font-size: 0.75rem; color: var(--text-dim); flex: 1; }
+        .tool-call-status { font-size: 0.7rem; }
+        .tool-call.success .tool-call-status { color: var(--accent-primary); }
+        .tool-call.error .tool-call-status { color: var(--accent-red); }
+        .tool-call.timeout .tool-call-status { color: var(--accent-orange); }
+
+        .tool-call-body { padding: 0.75rem; }
+
+        .code-block {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+        }
+
+        .tool-call-result {
+            padding: 0.5rem 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .tool-call.success .tool-call-result { background: rgba(74, 159, 110, 0.05); border-top: 1px solid rgba(74, 159, 110, 0.1); color: var(--accent-primary); }
+        .tool-call.error .tool-call-result { background: rgba(159, 74, 74, 0.05); border-top: 1px solid rgba(159, 74, 74, 0.1); color: var(--accent-red); }
+        .tool-call.timeout .tool-call-result { background: rgba(232, 149, 71, 0.05); border-top: 1px solid rgba(232, 149, 71, 0.1); color: var(--accent-orange); }
+    </style>
+</head>
+<body>
+    <h1>SVEND UI STATES</h1>
+    <p class="subtitle">Component variations for different scenarios</p>
+
+    <!-- Collapsed vs Expanded -->
+    <div class="section">
+        <div class="section-title">Reasoning Panel States</div>
+
+        <div class="demo-container">
+            <div class="demo-label">&#9654; Expanded (default for new responses)</div>
+            <div class="reasoning-panel">
+                <div class="reasoning-header">
+                    <div class="reasoning-title">
+                        <span>&#9670;</span> Reasoning
+                    </div>
+                    <div class="reasoning-meta">
+                        <span>3 steps</span>
+                        <span>2 tools</span>
+                        <span class="badge badge-verified">&#10003; Verified</span>
+                        <span class="chevron">&#9662;</span>
+                    </div>
+                </div>
+                <div class="reasoning-steps">
+                    <div class="step">
+                        <div class="step-indicator">
+                            <div class="step-number">1</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-label">Parse</div>
+                            <div class="step-text">Identified as definite integral with trigonometric substitution...</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-indicator">
+                            <div class="step-number">2</div>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-label">Solve</div>
+                            <div class="step-text">Applied substitution $u = \sin(x)$, computed integral...</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-indicator">
+                            <div class="step-number">3</div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-label">Verify</div>
+                            <div class="step-text">Confirmed by numerical integration: 0.7854 vs $\pi/4 \approx 0.7854$</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-container">
+            <div class="demo-label">&#9654; Collapsed (for previous messages in conversation)</div>
+            <div class="reasoning-panel collapsed">
+                <div class="reasoning-header">
+                    <div class="reasoning-title">
+                        <span>&#9670;</span> Reasoning
+                    </div>
+                    <div class="reasoning-meta">
+                        <span>3 steps</span>
+                        <span>2 tools</span>
+                        <span class="badge badge-verified">&#10003; Verified</span>
+                        <span class="chevron">&#9662;</span>
+                    </div>
+                </div>
+                <div class="collapsed-summary">
+                    Parsed integral &#8594; Trig substitution ($u = \sin x$) &#8594; Verified numerically
+                </div>
+                <div class="reasoning-steps">
+                    <!-- Hidden when collapsed -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tool Call States -->
+    <div class="section">
+        <div class="section-title">Tool Call States</div>
+
+        <div class="demo-container">
+            <div class="demo-label">&#10003; Success</div>
+            <div class="tool-call success">
+                <div class="tool-call-header">
+                    <span class="tool-badge sympy">SymPy</span>
+                    <span class="tool-call-name">integrate</span>
+                    <span class="tool-call-status">&#10003; 0.23s</span>
+                </div>
+                <div class="tool-call-body">
+                    <code class="code-block">integrate(sin(x)**2, (x, 0, pi))</code>
+                </div>
+                <div class="tool-call-result">pi/2</div>
+            </div>
+        </div>
+
+        <div class="demo-container">
+            <div class="demo-label">&#10007; Error</div>
+            <div class="tool-call error">
+                <div class="tool-call-header">
+                    <span class="tool-badge python">Python</span>
+                    <span class="tool-call-name">execute</span>
+                    <span class="tool-call-status">&#10007; Error</span>
+                </div>
+                <div class="tool-call-body">
+                    <code class="code-block">result = 1 / (x - 2)  # x=2 causes division by zero</code>
+                </div>
+                <div class="tool-call-result">ZeroDivisionError: division by zero</div>
+            </div>
+        </div>
+
+        <div class="demo-container">
+            <div class="demo-label">&#9888; Timeout</div>
+            <div class="tool-call timeout">
+                <div class="tool-call-header">
+                    <span class="tool-badge sympy">SymPy</span>
+                    <span class="tool-call-name">integrate</span>
+                    <span class="tool-call-status">&#9888; Timeout (30s)</span>
+                </div>
+                <div class="tool-call-body">
+                    <code class="code-block">integrate(exp(-x**2) * sin(x**3), x)  # No closed form</code>
+                </div>
+                <div class="tool-call-result">Computation exceeded time limit. Switching to numerical method...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error States -->
+    <div class="section">
+        <div class="section-title">Error States</div>
+
+        <div class="demo-container">
+            <div class="demo-label">&#10007; Tool Execution Failed</div>
+            <div class="error-panel">
+                <div class="error-header">
+                    <span class="error-icon">&#9888;</span>
+                    <span class="error-title">Tool execution failed</span>
+                </div>
+                <div class="error-body">
+                    <div class="error-message">
+                        The Python sandbox encountered an error while executing the verification step. The computed result may still be correct.
+                    </div>
+                    <div class="error-code">MemoryError: Unable to allocate 2.0 GiB for array</div>
+                    <button class="retry-btn">&#8635; Retry with smaller sample</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Answer Variants -->
+    <div class="section">
+        <div class="section-title">Answer States</div>
+
+        <div class="demo-container">
+            <div class="demo-label">&#10003; Verified Answer</div>
+            <div class="final-answer success">
+                <div class="final-answer-label">
+                    <span>&#10003;</span> Answer
+                </div>
+                <div class="final-answer-text">
+                    The integral evaluates to:
+                    <div class="answer-box">
+                        $\displaystyle\int_0^{\pi} \sin^2(x) \, dx = \frac{\pi}{2}$
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-container">
+            <div class="demo-label">&#9888; Unverified / Partial Answer</div>
+            <div class="final-answer partial">
+                <div class="final-answer-label">
+                    <span>&#9888;</span> Answer (unverified)
+                </div>
+                <div class="final-answer-text">
+                    Based on symbolic computation, the integral is likely:
+                    <div class="answer-box" style="border-color: rgba(232, 149, 71, 0.3);">
+                        $\displaystyle\int e^{-x^2}\sin(x^3) \, dx \approx 0.424$
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--accent-orange);">
+                        &#9888; Verification timed out. Result obtained via numerical approximation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+            });
+
+            // Toggle collapsed state on click
+            document.querySelectorAll('.reasoning-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    header.closest('.reasoning-panel').classList.toggle('collapsed');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
