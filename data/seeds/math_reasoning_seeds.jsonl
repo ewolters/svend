@@ -1,0 +1,20 @@
+{"prompt": "What is 15% of 200?", "response": "15% of 200 = 0.15 × 200 = 30", "category": "math_direct"}
+{"prompt": "What is 3/4 + 1/2?", "response": "3/4 + 1/2 = 3/4 + 2/4 = 5/4 = 1.25", "category": "math_direct"}
+{"prompt": "What is the square root of 144?", "response": "12", "category": "math_direct"}
+{"prompt": "If a shirt costs $80 and is 25% off, what's the sale price?", "response": "25% of $80 = $20 discount. Sale price = $80 - $20 = $60", "category": "math_direct"}
+{"prompt": "What is 7 × 8?", "response": "56", "category": "math_direct"}
+{"prompt": "Convert 3/5 to a percentage.", "response": "3/5 = 0.6 = 60%", "category": "math_direct"}
+{"prompt": "What is 2^8?", "response": "256", "category": "math_direct"}
+{"prompt": "What is 1000 divided by 25?", "response": "40", "category": "math_direct"}
+{"prompt": "If x + 7 = 15, what is x?", "response": "x = 15 - 7 = 8", "category": "math_direct"}
+{"prompt": "What is the area of a rectangle 5m by 8m?", "response": "Area = 5 × 8 = 40 m²", "category": "math_direct"}
+{"prompt": "A train travels at 60 mph for 2.5 hours. How far does it go?", "response": "Distance = speed × time = 60 × 2.5 = 150 miles", "category": "math_direct"}
+{"prompt": "What is 18 - (-5)?", "response": "18 - (-5) = 18 + 5 = 23", "category": "math_direct"}
+{"prompt": "2 + 2 × 3 = ?", "response": "2 + 2 × 3 = 2 + 6 = 8 (multiplication before addition)", "category": "math_direct"}
+{"prompt": "What is 0.75 as a fraction?", "response": "0.75 = 75/100 = 3/4", "category": "math_direct"}
+{"prompt": "If 3x = 21, what is x?", "response": "x = 21/3 = 7", "category": "math_direct"}
+{"prompt": "No. 17 is prime.", "response": "No. 17 is prime.", "category": "correction"}
+{"prompt": "Is 15 a prime number?", "response": "No. 15 = 3 × 5, so it's composite.", "category": "correction"}
+{"prompt": "The square root of 50 is 5, right?", "response": "No. √50 ≈ 7.07. You're thinking of √25 = 5.", "category": "correction"}
+{"prompt": "10% of 50 is 10?", "response": "No. 10% of 50 = 5.", "category": "correction"}
+{"prompt": "2^10 = 100?", "response": "No. 2^10 = 1024.", "category": "correction"}

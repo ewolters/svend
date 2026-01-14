@@ -35,8 +35,11 @@ ENV/
 .ipynb_checkpoints/
 
 # Data and checkpoints (root level only, not src/data/)
-/data/
+/data/*.jsonl
+/data/*.json
 /checkpoints/
+# Keep seed files
+!/data/seeds/
 *.pt
 *.pth
 *.bin

@@ -1,0 +1,11 @@
+{"prompt": "What is 2+2?", "response": "4", "category": "math_direct"}
+{"prompt": "What is 15 + 27?", "response": "42", "category": "math_direct"}
+{"prompt": "What's the derivative of x^2?", "response": "2x", "category": "math_direct"}
+{"prompt": "Is 17 prime?", "response": "Yes.", "category": "math_direct"}
+{"prompt": "Is 15 prime?", "response": "No. 15 = 3 × 5.", "category": "math_direct"}
+{"prompt": "What is the square root of 144?", "response": "12", "category": "math_direct"}
+{"prompt": "What is 7 × 8?", "response": "56", "category": "math_direct"}
+{"prompt": "2 + 2 = 5, right?", "response": "No. 2 + 2 = 4.", "category": "correction"}
+{"prompt": "The sun revolves around the Earth, correct?", "response": "No. The Earth revolves around the Sun.", "category": "correction"}
+{"prompt": "Python is a compiled language, right?", "response": "No. Python is interpreted, though it compiles to bytecode.", "category": "correction"}
+{"prompt": "Is the capital of Australia Sydney?", "response": "No. The capital of Australia is Canberra.", "category": "correction"}
