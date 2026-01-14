@@ -211,6 +211,14 @@ class Domain(Enum):
     # Meta-cognitive domains
     FAILURE_RECOGNITION = "failure_recognition"
     CLARIFICATION = "clarification"
+    # V0.3 Extended tool domains
+    GEOMETRY = "geometry"
+    STATISTICS = "statistics"
+    GRAPH_THEORY = "graph_theory"
+    FINANCE = "finance"
+    GAME_THEORY = "game_theory"
+    SEQUENCES = "sequences"
+    PROBABILITY = "probability"
 
 
 # Problem templates with expected tool usage
@@ -1008,6 +1016,266 @@ PROBLEM_TEMPLATES = {
             "clarification_needed": "What is the target concentration and starting solution?",
         },
     ],
+    # V0.3 Extended tool domains
+    Domain.GEOMETRY: [
+        {
+            "template": "Find the area of a triangle with base {b} and height {h}",
+            "tool": "geometry",
+            "operation": "triangle_area",
+            "vars": {"b": ["5", "10", "7.5", "12"], "h": ["3", "8", "4", "5"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Find the area of a circle with radius {r}",
+            "tool": "geometry",
+            "operation": "circle_area",
+            "vars": {"r": ["5", "10", "3.5", "7"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Calculate the volume of a sphere with radius {r}",
+            "tool": "geometry",
+            "operation": "sphere_volume",
+            "vars": {"r": ["3", "5", "2", "10"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Find the hypotenuse of a right triangle with legs {a} and {b}",
+            "tool": "geometry",
+            "operation": "pythagorean",
+            "vars": {"a": ["3", "5", "8", "12"], "b": ["4", "12", "15", "5"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Calculate the surface area of a cylinder with radius {r} and height {h}",
+            "tool": "geometry",
+            "operation": "cylinder_surface",
+            "vars": {"r": ["3", "5", "2"], "h": ["10", "8", "15"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Find the angle in degrees for an arc of length {s} on a circle of radius {r}",
+            "tool": "geometry",
+            "operation": "arc_angle",
+            "vars": {"s": ["5", "10", "3.14"], "r": ["10", "5", "2"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Find the distance between points ({x1}, {y1}) and ({x2}, {y2})",
+            "tool": "geometry",
+            "operation": "distance",
+            "vars": {"x1": ["0", "1", "-2"], "y1": ["0", "2", "3"], "x2": ["3", "4", "4"], "y2": ["4", "6", "-1"]},
+            "difficulty": "easy",
+        },
+    ],
+    Domain.STATISTICS: [
+        {
+            "template": "Calculate the mean, median, and standard deviation of: {data}",
+            "tool": "statistics",
+            "operation": "descriptive",
+            "vars": {"data": ["[2, 4, 6, 8, 10]", "[1, 3, 3, 6, 7, 8, 9]", "[15, 20, 35, 40, 50]", "[100, 200, 300, 400, 500]"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Find the correlation coefficient between X = {x} and Y = {y}",
+            "tool": "statistics",
+            "operation": "correlation",
+            "vars": {"x": ["[1, 2, 3, 4, 5]", "[10, 20, 30, 40, 50]"], "y": ["[2, 4, 5, 4, 5]", "[15, 25, 35, 45, 55]"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Perform a linear regression on X = {x} and Y = {y}. What is the slope and intercept?",
+            "tool": "statistics",
+            "operation": "regression",
+            "vars": {"x": ["[1, 2, 3, 4, 5]", "[0, 1, 2, 3, 4]"], "y": ["[2.1, 3.9, 6.2, 7.8, 10.1]", "[1, 3, 5, 7, 9]"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Calculate the z-score for a value of {x} given mean {mu} and standard deviation {sigma}",
+            "tool": "statistics",
+            "operation": "zscore",
+            "vars": {"x": ["85", "120", "45"], "mu": ["100", "100", "50"], "sigma": ["15", "10", "5"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Find the {percentile}th percentile of the dataset {data}",
+            "tool": "statistics",
+            "operation": "percentile",
+            "vars": {"percentile": ["25", "50", "75", "90"], "data": ["[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", "[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]"]},
+            "difficulty": "easy",
+        },
+    ],
+    Domain.PROBABILITY: [
+        {
+            "template": "What is the probability of getting exactly {k} heads in {n} fair coin flips?",
+            "tool": "statistics",
+            "operation": "binomial",
+            "vars": {"k": ["3", "5", "2", "7"], "n": ["10", "10", "5", "10"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "In a normal distribution with mean {mu} and std {sigma}, what is P(X < {x})?",
+            "tool": "statistics",
+            "operation": "normal_cdf",
+            "vars": {"mu": ["100", "0", "50"], "sigma": ["15", "1", "10"], "x": ["115", "1.5", "60"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Calculate the expected value of rolling a fair {n}-sided die",
+            "tool": "statistics",
+            "operation": "expected_value",
+            "vars": {"n": ["6", "20", "8", "12"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "If P(A) = {pa} and P(B) = {pb}, and A and B are independent, what is P(A and B)?",
+            "tool": "statistics",
+            "operation": "probability",
+            "vars": {"pa": ["0.3", "0.5", "0.2"], "pb": ["0.4", "0.6", "0.7"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "A bag contains {r} red and {b} blue balls. What is the probability of drawing {k} red balls in {n} draws without replacement?",
+            "tool": "statistics",
+            "operation": "hypergeometric",
+            "vars": {"r": ["5", "10", "8"], "b": ["10", "15", "12"], "k": ["2", "3", "2"], "n": ["4", "5", "4"]},
+            "difficulty": "hard",
+        },
+    ],
+    Domain.GRAPH_THEORY: [
+        {
+            "template": "Find the shortest path from node {start} to node {end} in the graph: {edges}",
+            "tool": "graph",
+            "operation": "shortest_path",
+            "vars": {"start": ["A", "1", "X"], "end": ["D", "4", "Z"], "edges": ["[(A,B,1),(B,C,2),(A,C,4),(C,D,1)]", "[(1,2,3),(2,3,1),(1,3,5),(3,4,2)]", "[(X,Y,2),(Y,Z,3),(X,Z,6)]"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Is the graph with edges {edges} connected?",
+            "tool": "graph",
+            "operation": "is_connected",
+            "vars": {"edges": ["[(A,B),(B,C),(C,D)]", "[(1,2),(3,4)]", "[(A,B),(B,C),(C,A),(D,E)]"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Find all cycles in the graph with edges: {edges}",
+            "tool": "graph",
+            "operation": "find_cycles",
+            "vars": {"edges": ["[(A,B),(B,C),(C,A)]", "[(1,2),(2,3),(3,4),(4,1),(2,4)]", "[(A,B),(B,C),(C,D),(D,A),(B,D)]"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Find the minimum spanning tree for the weighted graph: {edges}",
+            "tool": "graph",
+            "operation": "mst",
+            "vars": {"edges": ["[(A,B,4),(B,C,3),(A,C,5),(C,D,2)]", "[(1,2,1),(2,3,2),(1,3,3),(3,4,1)]"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "What is the degree of each node in the graph with edges: {edges}",
+            "tool": "graph",
+            "operation": "degrees",
+            "vars": {"edges": ["[(A,B),(B,C),(C,A),(A,D)]", "[(1,2),(2,3),(3,1),(1,4),(4,2)]"]},
+            "difficulty": "easy",
+        },
+    ],
+    Domain.FINANCE: [
+        {
+            "template": "Calculate the future value of ${pv} invested at {r}% annual interest for {n} years, compounded {freq}",
+            "tool": "finance",
+            "operation": "future_value",
+            "vars": {"pv": ["1000", "5000", "10000"], "r": ["5", "7", "3"], "n": ["10", "5", "20"], "freq": ["annually", "monthly", "quarterly"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "What is the present value of ${fv} to be received in {n} years at a discount rate of {r}%?",
+            "tool": "finance",
+            "operation": "present_value",
+            "vars": {"fv": ["10000", "50000", "100000"], "n": ["5", "10", "20"], "r": ["5", "8", "3"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Calculate the NPV of a project with initial cost ${cost} and cash flows {flows} at discount rate {r}%",
+            "tool": "finance",
+            "operation": "npv",
+            "vars": {"cost": ["10000", "50000"], "flows": ["[3000, 4000, 5000, 4000]", "[15000, 20000, 25000, 30000]"], "r": ["10", "8"]},
+            "difficulty": "hard",
+        },
+        {
+            "template": "What is the monthly payment on a ${principal} loan at {r}% annual interest for {n} years?",
+            "tool": "finance",
+            "operation": "loan_payment",
+            "vars": {"principal": ["200000", "30000", "500000"], "r": ["5", "7", "4"], "n": ["30", "5", "15"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Calculate the IRR for a project with initial investment ${invest} and cash flows {flows}",
+            "tool": "finance",
+            "operation": "irr",
+            "vars": {"invest": ["10000", "25000"], "flows": ["[3000, 4200, 6800]", "[8000, 10000, 12000, 5000]"]},
+            "difficulty": "hard",
+        },
+    ],
+    Domain.GAME_THEORY: [
+        {
+            "template": "Find the Nash equilibrium for the payoff matrix: Player 1 = {p1}, Player 2 = {p2}",
+            "tool": "game_theory",
+            "operation": "nash_equilibrium",
+            "vars": {"p1": ["[[3,0],[5,1]]", "[[2,0],[0,1]]"], "p2": ["[[3,5],[0,1]]", "[[2,0],[0,1]]"]},
+            "difficulty": "hard",
+        },
+        {
+            "template": "In a zero-sum game with payoff matrix {matrix}, what is the optimal mixed strategy for Player 1?",
+            "tool": "game_theory",
+            "operation": "mixed_strategy",
+            "vars": {"matrix": ["[[1,-1],[-1,1]]", "[[3,0],[5,1]]", "[[2,-1],[0,3]]"]},
+            "difficulty": "hard",
+        },
+        {
+            "template": "Is the strategy profile {strategy} a dominant strategy equilibrium in the game with payoffs {payoffs}?",
+            "tool": "game_theory",
+            "operation": "dominant_strategy",
+            "vars": {"strategy": ["(A,A)", "(B,B)"], "payoffs": ["[[(3,3),(0,5)],[(5,0),(1,1)]]", "[[(2,2),(0,3)],[(3,0),(1,1)]]"]},
+            "difficulty": "medium",
+        },
+    ],
+    Domain.SEQUENCES: [
+        {
+            "template": "Find the next {n} terms in the sequence: {seq}",
+            "tool": "sequence",
+            "operation": "predict",
+            "vars": {"seq": ["1, 4, 9, 16, 25", "2, 6, 12, 20, 30", "1, 1, 2, 3, 5, 8"], "n": ["3", "3", "4"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Find the formula for the nth term of the sequence: {seq}",
+            "tool": "sequence",
+            "operation": "find_formula",
+            "vars": {"seq": ["2, 4, 6, 8, 10", "1, 4, 9, 16, 25", "1, 3, 6, 10, 15", "2, 6, 18, 54"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "Calculate the sum of the first {n} terms of the arithmetic sequence with first term {a} and common difference {d}",
+            "tool": "sequence",
+            "operation": "arithmetic_sum",
+            "vars": {"n": ["10", "20", "50"], "a": ["1", "5", "2"], "d": ["2", "3", "4"]},
+            "difficulty": "easy",
+        },
+        {
+            "template": "Calculate the sum of the first {n} terms of the geometric sequence with first term {a} and common ratio {r}",
+            "tool": "sequence",
+            "operation": "geometric_sum",
+            "vars": {"n": ["5", "10", "8"], "a": ["1", "2", "3"], "r": ["2", "0.5", "3"]},
+            "difficulty": "medium",
+        },
+        {
+            "template": "What is the {n}th Fibonacci number?",
+            "tool": "sequence",
+            "operation": "fibonacci",
+            "vars": {"n": ["10", "20", "15", "30"]},
+            "difficulty": "easy",
+        },
+    ],
 }
 
 # Domain distribution for generation
@@ -1031,6 +1299,14 @@ DOMAIN_DISTRIBUTION = {
     # Meta-cognitive - critical for robust behavior
     Domain.FAILURE_RECOGNITION: 1000,   # Learn to recognize unsolvable problems
     Domain.CLARIFICATION: 1000,         # Learn to ask for missing info
+    # V0.3 Extended domains
+    Domain.GEOMETRY: 1000,              # Shapes, areas, volumes
+    Domain.STATISTICS: 1000,            # Descriptive stats, regression
+    Domain.PROBABILITY: 800,            # Distributions, combinatorics
+    Domain.GRAPH_THEORY: 600,           # Paths, trees, connectivity
+    Domain.FINANCE: 800,                # NPV, IRR, loans
+    Domain.GAME_THEORY: 400,            # Nash equilibrium, strategies
+    Domain.SEQUENCES: 600,              # Patterns, series
 }
 
 
